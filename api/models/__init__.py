@@ -5,3 +5,4 @@ from .advertising_legacy import AdvertisingLegacy
 from .audience import Audience
 from .trigger import Trigger
 from .demographics import Demographics
+from .strategic_goals import StrategicGoals
