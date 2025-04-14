@@ -17,11 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Configure CORS - adjust origin to your frontend domain
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://gravta.com",
-  "https://adneura-backend-uchgev-f09b61-194-195-86-246.traefik.me",
-];
+const allowedOrigins = ["http://localhost:5173", "https://gravta.com"];
 
 app.use(
   cors({
