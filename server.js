@@ -7,7 +7,8 @@ const rateLimit = require("express-rate-limit");
 const { Pool } = require("pg");
 
 const app = express();
-
+// Setup for CORS and security headers
+app.set("trust proxy", 1);
 // Setup security headers with Helmet
 app.use(helmet());
 
