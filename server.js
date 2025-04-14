@@ -33,8 +33,6 @@ app.use(
   })
 );
 
-app.options("*", cors());
-
 // Rate limiter to prevent abuse
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
