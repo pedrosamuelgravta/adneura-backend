@@ -43,31 +43,31 @@ app.use(limiter);
 
 // Create a PostgreSQL connection pool using the connection string from .env
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE,
 });
 
-// Function to create the "contacts" table if it doesn't exist
-async function createContactsTable() {
-  const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS contacts (
-      id SERIAL PRIMARY KEY,
-      fullName TEXT NOT NULL,
-      companyName TEXT,
-      jobTitle TEXT,
-      workEmail TEXT NOT NULL,
-      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  `;
-  try {
-    await pool.query(createTableQuery);
-    console.log("Contacts table is ready!");
-  } catch (error) {
-    console.error("Error creating contacts table:", error);
-  }
-}
+// // Function to create the "contacts" table if it doesn't exist
+// async function createContactsTable() {
+//   const createTableQuery = `
+//     CREATE TABLE IF NOT EXISTS contacts (
+//       id SERIAL PRIMARY KEY,
+//       fullName TEXT NOT NULL,
+//       companyName TEXT,
+//       jobTitle TEXT,
+//       workEmail TEXT NOT NULL,
+//       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+//     );
+//   `;
+//   try {
+//     await pool.query(createTableQuery);
+//     console.log("Contacts table is ready!");
+//   } catch (error) {
+//     console.error("Error creating contacts table:", error);
+//   }
+// }
 
-// Call the function to create the table on server startup
-createContactsTable();
+// // Call the function to create the table on server startup
+// createContactsTable();
 
 // POST endpoint to handle contact form submissions
 app.post("/contact", async (req, res) => {
@@ -113,5 +113,5 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
-  console.log("DATABASE_URL ->", process.env.DATABASE_URL);
+  console.log("DATABASE_URL ->", process.env.DATABASE);
 });
