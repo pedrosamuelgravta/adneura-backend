@@ -5,6 +5,17 @@ const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const { Pool } = require("pg");
+const nodemailer = require("nodemailer");
+
+const mailer = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: process.env.SMTP_PORT === "465",
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 const app = express();
 // Setup for CORS and security headers
@@ -92,11 +103,25 @@ app.post("/contact", async (req, res) => {
       jobTitle,
       workEmail,
     ]);
+    const mailOptions = {
+      from: `"Gravta" <${process.env.SMTP_USER}>`,
+      to: process.env.MAIL_TO,
+      subject: "New Contact Form Submission",
+      text: `
+New contact form submission:
+
+• Full Name: ${fullName || "–"}
+• Company Name: ${companyName || "–"}
+• Job Title: ${jobTitle || "–"}
+• Work Email: ${workEmail}
+
+Send on: ${result.rows[0].createdat}
+      `,
+    };
+    await mailer.sendMail(mailOptions);
 
     return res.status(201).json({
       message: "Contact saved successfully!",
-      contactId: result.rows[0].id,
-      createdAt: result.rows[0].createdat,
     });
   } catch (error) {
     console.error("Error saving contact:", error);
@@ -113,5 +138,4 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
-  console.log("DATABASE_URL ->", process.env.DATABASE);
 });
