@@ -1,0 +1,25 @@
+{
+  "name": "Python 3",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "development",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/itsmechlark/features/postgresql:1": {}
+  },
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+  "postCreateCommand": "pip install -r requirements.txt",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-azuretools.vscode-containers",
+        "cweijan.vscode-database-client2"
+      ]
+    }
+  }
+}
