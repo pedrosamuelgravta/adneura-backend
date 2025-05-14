@@ -3,7 +3,6 @@ from sqlmodel import select
 from api.models import Brand
 from api.schemas import BrandUpdate
 from core.db import SessionDep
-from core.exceptions import NotFoundException, InternalServerError, ConflictException
 from uuid import UUID
 
 

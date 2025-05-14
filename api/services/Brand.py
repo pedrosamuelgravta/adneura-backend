@@ -49,14 +49,15 @@ class BrandService:
         brand_data = brand.model_dump()
         brand_data["user_id"] = current_user.id
         for key, prompt in prompts.items():
-            response = await OpenAiService.chat(system=BrandService.system,
-                                                assistant=f"""You are tasked with generating content for {brand.name}.
-                                                            Refer to the brand's official website at {brand.website_url}
-                                                            for desambiguation and accuracy, but, search for information in an broad array of sources.
-                                                            If any section lacks data, mark it as "INSIGHTS NEEDED" for the client to complete.""",
-                                                user=prompt,
-                                                session=session,
-                                                )
+            response = await OpenAiService.chat(
+                system=BrandService.system,
+                assistant=f"""You are tasked with generating content for {brand.name}.
+                    Refer to the brand's official website at {brand.website_url}
+                    for desambiguation and accuracy, but, search for information in an broad array of sources.
+                    If any section lacks data, mark it as "INSIGHTS NEEDED" for the client to complete.""",
+                user=prompt,
+                session=session,
+            )
             brand_data[key] = response
 
         brand = await BrandRepository.create_brand(brand_data, session)
@@ -75,7 +76,6 @@ class BrandService:
 
         if brand.prompt:
             response = await BrandService.__update_step_with_prompt__(update_data, brand, session)
-
             return JSONResponse(response, status_code=202)
 
         if brand.rerun_step:
@@ -154,8 +154,10 @@ class BrandService:
             prompt = prompts[field]
             response = await OpenAiService.chat(
                 system=BrandService.system,
-                assistant=f"""You are tasked with generating content for {brand.name}.
-                            Consider {guideline_field} as a guideline and disambiguation factor.
+                assistant=f"""
+                            You are tasked with generating content for {brand.name}.
+                            Considering the updated {guideline_field} of the brand: '{guideline_text}', 
+                            please use this as a guideline and disambiguation factor to complete your task.
                             """,
                 user=prompt,
                 session=session,

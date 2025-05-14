@@ -1,11 +1,10 @@
-from typing import Optional, List
+from typing import List
 from fastapi import APIRouter, Depends
-from sqlmodel import Session
 from uuid import UUID
 
 from api.services import UserService
-from api.schemas import UserCreate, UserReturn
-from api.dependencies import get_current_active_user, get_current_user
+from api.schemas import UserReturn
+from api.dependencies import get_current_active_user
 from core.db import SessionDep
 
 user_router = APIRouter(prefix="/user", tags=["User"])
