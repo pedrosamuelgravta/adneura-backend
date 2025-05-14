@@ -26,15 +26,15 @@ class AudienceRepository:
         return session.exec(select(Audience).where(Audience.brand_id == brand_id)).first()
 
     @staticmethod
-    async def create_audience(audience: AudienceCreate, session: SessionDep) -> Audience | None:
-        audience = Audience(**audience.model_dump())
+    async def create_audience(audience_data: dict, session: SessionDep) -> Audience | None:
+        audience = Audience(**audience_data)
         session.add(audience)
         session.commit()
         session.refresh(audience)
         return audience
 
     @staticmethod
-    async def update_audience(audience_id: UUID, audience: AudienceUpdate, session: SessionDep) -> Audience | None:
+    async def update_audience(audience_id: UUID, audience: dict, session: SessionDep) -> Audience | None:
         existing_audience = session.get(Audience, audience_id)
         existing_audience.sqlmodel_update(audience)
         session.add(existing_audience)

@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from core.db import SessionDep
-from api.schemas import AudienceCreate, AudienceReturn, AudienceUpdate, UserReturn
+from api.schemas import AudienceCreate, AudienceReturn, AudienceUpdate, UserReturn, AudienceAiGenerate, AudienceGenerateResponse
 from api.services import AudienceService
 from api.dependencies import get_current_active_user
 from uuid import UUID
@@ -57,13 +57,13 @@ async def delete_audience(
     return await AudienceService.delete_audience(audience_id, session)
 
 
-@audience_router.post("/ai_generate", response_model=List[AudienceReturn])
+@audience_router.post("/ai_generate", response_model=AudienceGenerateResponse)
 async def generate_audiences_with_ai(
+    request: AudienceAiGenerate,
     session: SessionDep,
-    audiences_number: int = 9,
     current_user: UserReturn = Depends(get_current_active_user),
-) -> List[AudienceReturn]:
-    return await AudienceService.generate_initial_audiences(audiences_number, session, current_user)
+) -> AudienceGenerateResponse | None:
+    return await AudienceService.generate_initial_audiences(request, session)
 
 
 @audience_router.post("/analyze", response_model=AudienceReturn)

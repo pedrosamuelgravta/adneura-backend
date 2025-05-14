@@ -29,7 +29,9 @@ class OpenAiService:
     async def chat(system: str, assistant: str, user: str, session: SessionDep, options: ChatOptions = ChatOptions(), ) -> dict:
         try:
             openai = OpenAI(api_key=settings.OPENAI_API_KEY)
-
+            print(f"System: {system}")
+            print(f"Assistant: {assistant}")
+            print(f"User: {user}")
             messages = [
                 {"role": "system", "content": system},
                 {"role": "assistant", "content": assistant},

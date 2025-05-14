@@ -37,6 +37,7 @@ class AudienceCreate(BaseModel):
     media_habits: Optional[str] = Field(default=None, nullable=True)
     general_keywords: Optional[str] = Field(default=None, nullable=True)
     brand_keywords: Optional[str] = Field(default=None, nullable=True)
+    brand_id: UUID = Field(default=None, nullable=True)
 
 
 class AudienceUpdate(BaseModel):
@@ -58,3 +59,13 @@ class AudienceDelete(BaseModel):
     id: UUID
     name: str
     description: str
+
+
+class AudienceAiGenerate(BaseModel):
+    brand_id: UUID
+    audience_number: int = 9
+
+
+class AudienceGenerateResponse(BaseModel):
+    message: str
+    audiences: Optional[int]

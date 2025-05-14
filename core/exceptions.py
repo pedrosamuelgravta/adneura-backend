@@ -29,3 +29,8 @@ class ForbiddenException(HTTPException):
 class InternalServerError(HTTPException):
     def __init__(self, detail: str = "Internal Server Error"):
         super().__init__(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=detail)
+
+
+class AudienceAlreadyAnalyzedException(HTTPException):
+    def __init__(self, detail: str = "Audience already analyzed"):
+        super().__init__(status_code=HTTPStatus.BAD_REQUEST, detail=detail)
