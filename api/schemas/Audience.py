@@ -1,7 +1,7 @@
 from typing import Optional, List
 import re
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, Field
 from uuid import UUID
 
 from api.models import Trigger, Demographic
