@@ -2,7 +2,13 @@ from uuid import UUID
 from typing import List
 from api.repositories import AudienceRepository, BrandRepository
 from api.models import User
-from api.schemas import AudienceCreate, AudienceReturn, AudienceUpdate, AudienceAiGenerate, AudienceGenerateResponse
+from api.schemas import (
+    AudienceCreate,
+    AudienceReturn,
+    AudienceUpdate,
+    AudienceAiGenerate,
+    AudienceGenerateResponse,
+)
 from core.exceptions import *
 from core.db import SessionDep
 
@@ -16,19 +22,39 @@ class AudienceService:
         return await AudienceRepository.get_all_audiences(session)
 
     @staticmethod
-    async def get_all_audiences_by_user(user_id: UUID, session: SessionDep) -> List[AudienceReturn]:
+    async def get_all_audiences_by_user(
+        user_id: UUID, session: SessionDep
+    ) -> List[AudienceReturn]:
         return await AudienceRepository.get_all_audiences_by_user(user_id, session)
 
     @staticmethod
-    async def get_audience_by_id(audience_id: UUID, session: SessionDep) -> AudienceReturn:
+    async def get_audience_by_id(
+        audience_id: UUID, session: SessionDep
+    ) -> AudienceReturn:
         audience = await AudienceRepository.get_audience_by_id(audience_id, session)
         if not audience:
             raise NotFoundException("Audience not found")
         return audience
 
     @staticmethod
-    async def create_audience(audience: AudienceCreate, session: SessionDep, current_user: User) -> AudienceReturn:
-        ...
+    async def create_audience(
+        audience: AudienceCreate, session: SessionDep, current_user: User
+    ) -> AudienceReturn: ...
+
+    @staticmethod
+    async def update_audience(
+        audience_id: UUID, audience: AudienceUpdate, session: SessionDep
+    ) -> AudienceReturn:
+        audience_data = await AudienceRepository.get_audience_by_id(
+            audience_id, session
+        )
+        if not audience_data:
+            raise NotFoundException(f"Audience with id {audience_id} not found")
+
+        updated_audience = await AudienceRepository.update_audience(
+            audience_id, audience, session
+        )
+        return updated_audience
 
     @staticmethod
     async def generate_initial_audiences(
@@ -37,8 +63,7 @@ class AudienceService:
     ) -> AudienceGenerateResponse | None:
         brand = await BrandRepository.get_brand_by_id(request.brand_id, session)
         if not brand:
-            raise NotFoundException(
-                f"Brand with id {request.brand_id} not found")
+            raise NotFoundException(f"Brand with id {request.brand_id} not found")
 
         response = await OpenAiService.chat(
             system="""
@@ -80,8 +105,9 @@ class AudienceService:
                 text = text[: text.find("Name:")]
 
             name = text.split("Short Description:")[0].strip()
-            short_description = text.split("Short Description:")[
-                1].split("Image Prompt:")[0].strip()
+            short_description = (
+                text.split("Short Description:")[1].split("Image Prompt:")[0].strip()
+            )
             image_prompt = text.split("Image Prompt:")[1].strip()
 
             audience_data = {
@@ -110,25 +136,25 @@ class AudienceService:
     ) -> AudienceReturn:
         audience = await AudienceRepository.get_audience_by_id(audience_id, session)
         if not audience:
-            raise NotFoundException(
-                f"Audience with id {audience_id} not found")
-        brand = await BrandRepository.get_brand_by_id(
-            audience.brand_id, session)
+            raise NotFoundException(f"Audience with id {audience_id} not found")
+        brand = await BrandRepository.get_brand_by_id(audience.brand_id, session)
         if not brand:
-            raise NotFoundException(
-                f"Brand with id {audience.brand_id} not found")
+            raise NotFoundException(f"Brand with id {audience.brand_id} not found")
 
-        if all([
-            audience.psycho_graphic,
-            audience.attitudinal,
-            audience.self_concept,
-            audience.lifestyle,
-            audience.media_habits,
-            audience.general_keywords,
-            audience.brand_keywords,
-        ]):
+        if all(
+            [
+                audience.psycho_graphic,
+                audience.attitudinal,
+                audience.self_concept,
+                audience.lifestyle,
+                audience.media_habits,
+                audience.general_keywords,
+                audience.brand_keywords,
+            ]
+        ):
             raise AudienceAlreadyAnalyzedException(
-                f"Audience with id {audience_id} already analyzed")
+                f"Audience with id {audience_id} already analyzed"
+            )
 
         response = await OpenAiService.chat(
             system="""
@@ -137,7 +163,6 @@ class AudienceService:
                     with a sharp focus on consumer insights and and marker analysis.
                     """,
             assistant="",
-
             user=f"""
                 Considering 
                 - Audience Name: {audience.name}
@@ -229,8 +254,7 @@ class AudienceService:
             "location": demographics["location"],
             "audience": audience,
         }
-        await AudienceRepository.update_audience(
-            audience_id, audience_data, session)
+        await AudienceRepository.update_audience(audience_id, audience_data, session)
 
         return JSONResponse(
             content={
