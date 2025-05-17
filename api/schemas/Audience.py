@@ -20,8 +20,8 @@ class AudienceReturn(BaseModel):
     media_habits: str
     general_keywords: str
     brand_keywords: str
-    triggers: List["Trigger"]
-    demographics: "Demographic"
+    triggers: Optional[List["Trigger"]] = Field(default=None, nullable=True)
+    demographics: Optional["Demographic"] = Field(default=None, nullable=True)
 
 
 class AudienceCreate(BaseModel):

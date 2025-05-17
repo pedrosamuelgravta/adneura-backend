@@ -35,6 +35,7 @@ async def create_audience(
     session: SessionDep,
     current_user: UserReturn = Depends(get_current_active_user),
 ) -> AudienceReturn:
+    print(audience)
     return await AudienceService.create_audience(audience, session, current_user)
 
 
@@ -70,6 +71,6 @@ async def generate_audiences_with_ai(
 async def analyze_audience(
     audience_id: UUID,
     session: SessionDep,
-    current_user: UserReturn = Depends(get_current_active_user),
+    current_user: UserReturn = Depends(get_current_active_user)
 ) -> AudienceReturn:
-    return await AudienceService.analyze_audience(audience_id, session, current_user)
+    return await AudienceService.analyze_audience(audience_id, session)

@@ -31,7 +31,11 @@ class TriggerService:
 
     @staticmethod
     async def create_trigger(trigger: TriggerCreate, session: SessionDep) -> TriggerReturn:
-        ...
+        trigger_obj = await TriggerRepository.create_trigger(trigger, session)
+        if not trigger_obj:
+            raise NotFoundException(
+                f"Trigger with id {trigger_obj.id} not found")
+        return trigger_obj
 
     @staticmethod
     async def generate_initial_triggers(

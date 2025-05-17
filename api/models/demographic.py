@@ -15,7 +15,7 @@ class Demographic(SQLModel, table=True):
     gender: Optional[str] = Field(default=None, nullable=True)
     age_bracket: Optional[str] = Field(default=None, nullable=True)
     hhi: Optional[str] = Field(default=None, nullable=True)
-    ethinicity: Optional[str] = Field(default=None, nullable=True)
+    ethnicity: Optional[str] = Field(default=None, nullable=True)
     education: Optional[str] = Field(default=None, nullable=True)
     location: Optional[str] = Field(default=None, nullable=True)
     created_at: Optional[datetime] = Field(
