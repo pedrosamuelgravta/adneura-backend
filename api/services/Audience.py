@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import List
-from api.repositories import AudienceRepository, BrandRepository
+from api.repositories import AudienceRepository, BrandRepository, DemographicRepository
 from api.models import User
 from api.schemas import (
     AudienceCreate,
@@ -39,7 +39,13 @@ class AudienceService:
     @staticmethod
     async def create_audience(
         audience: AudienceCreate, session: SessionDep, current_user: User
-    ) -> AudienceReturn: ...
+    ) -> AudienceReturn:
+        print(audience)
+        audience_data = audience.model_dump()
+        new_audience = await AudienceRepository.create_audience(
+            audience_data, session
+        )
+        return new_audience
 
     @staticmethod
     async def update_audience(
@@ -49,7 +55,8 @@ class AudienceService:
             audience_id, session
         )
         if not audience_data:
-            raise NotFoundException(f"Audience with id {audience_id} not found")
+            raise NotFoundException(
+                f"Audience with id {audience_id} not found")
 
         updated_audience = await AudienceRepository.update_audience(
             audience_id, audience, session
@@ -63,7 +70,8 @@ class AudienceService:
     ) -> AudienceGenerateResponse | None:
         brand = await BrandRepository.get_brand_by_id(request.brand_id, session)
         if not brand:
-            raise NotFoundException(f"Brand with id {request.brand_id} not found")
+            raise NotFoundException(
+                f"Brand with id {request.brand_id} not found")
 
         response = await OpenAiService.chat(
             system="""
@@ -106,7 +114,8 @@ class AudienceService:
 
             name = text.split("Short Description:")[0].strip()
             short_description = (
-                text.split("Short Description:")[1].split("Image Prompt:")[0].strip()
+                text.split("Short Description:")[1].split(
+                    "Image Prompt:")[0].strip()
             )
             image_prompt = text.split("Image Prompt:")[1].strip()
 
@@ -132,14 +141,15 @@ class AudienceService:
     async def analyze_audience(
         audience_id: UUID,
         session: SessionDep,
-        current_user: User,
     ) -> AudienceReturn:
         audience = await AudienceRepository.get_audience_by_id(audience_id, session)
         if not audience:
-            raise NotFoundException(f"Audience with id {audience_id} not found")
+            raise NotFoundException(
+                f"Audience with id {audience_id} not found")
         brand = await BrandRepository.get_brand_by_id(audience.brand_id, session)
         if not brand:
-            raise NotFoundException(f"Brand with id {audience.brand_id} not found")
+            raise NotFoundException(
+                f"Brand with id {audience.brand_id} not found")
 
         if all(
             [
@@ -254,6 +264,9 @@ class AudienceService:
             "location": demographics["location"],
             "audience": audience,
         }
+        # await DemographicRepository.create_demographic(
+        #     demographic_data, session
+        # )
         await AudienceRepository.update_audience(audience_id, audience_data, session)
 
         return JSONResponse(

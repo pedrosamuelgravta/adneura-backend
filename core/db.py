@@ -11,6 +11,7 @@ engine = create_engine(postgresql_database_url, echo=True)
 
 def initialize_db():
     print("init db")
+
     SQLModel.metadata.create_all(engine)
 
 

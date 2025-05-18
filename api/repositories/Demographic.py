@@ -26,11 +26,11 @@ class DemographicRepository:
     async def create_demographic(
         demographic: DemographicCreate, session: SessionDep
     ) -> Demographic:
-        demographic = Demographic.model_validate(demographic)
-        session.add(demographic)
+        demographic_obj = Demographic(**demographic.model_dump())
+        session.add(demographic_obj)
         session.commit()
-        session.refresh(demographic)
-        return demographic
+        session.refresh(demographic_obj)
+        return demographic_obj
 
     @staticmethod
     async def update_demographic(
