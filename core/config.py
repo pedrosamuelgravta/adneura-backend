@@ -6,6 +6,7 @@ from typing import Optional
 
 class __Settings__(BaseSettings):
     DATABASE_STRING: str = "postgresql://user:password@db:5432/db"
+    REDIS_STRING: str = "your_redis_string"
     OPENAI_API_KEY: str = "your_openai_api_key"
     DATABASE_STRING_NAME: Optional[str] = "db"
     ACCESS_TOKEN_EXPIRE_MINUTE: Optional[int] = 10
