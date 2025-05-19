@@ -20,11 +20,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-origins = [
-    "http://localhost:3000",
-    "https://adneura-backendcompose-0dblsk-1387ad-194-195-86-246.traefik.me",
-    "https://adneura-backendcompose-0dblsk-1387ad-194-195-86-246.traefik.me",
-]
+origins = ["http://localhost:3000", "http://194.195.86.246:8000/"]
 
 app.include_router(user_router)
 app.include_router(auth_router)
