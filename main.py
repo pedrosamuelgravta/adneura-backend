@@ -20,6 +20,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+origins = [
+    "http://localhost:3000",
+    "https://adneura-backendcompose-0dblsk-1387ad-194-195-86-246.traefik.me",
+    "https://adneura-backendcompose-0dblsk-1387ad-194-195-86-246.traefik.me",
+]
+
 app.include_router(user_router)
 app.include_router(auth_router)
 app.include_router(brand_router)
@@ -72,7 +78,4 @@ def simular_envio_em_lote():
 @app.get("/status/{task_id}")
 def verificar_status(task_id: str):
     resultado = AsyncResult(task_id, app=celery_app)
-    return {
-        "status": resultado.status,
-        "resultado": resultado.result
-    }
+    return {"status": resultado.status, "resultado": resultado.result}
