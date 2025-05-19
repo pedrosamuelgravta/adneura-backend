@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-origins = ["http://localhost:3000", "http://194.195.86.246:8000/"]
+origins = ["http://localhost:5173", "https://homolog.gravta.com"]
 
 app.include_router(user_router)
 app.include_router(auth_router)
