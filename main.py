@@ -4,6 +4,7 @@ from api.models import Brand, User, Audience, StrategicGoal
 from tasks.image import image_generation
 from celery.result import AsyncResult
 from core.celery import celery_app
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.routers import *
 
@@ -21,6 +22,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 origins = ["http://localhost:5173", "https://homolog.gravta.com"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(user_router)
 app.include_router(auth_router)
