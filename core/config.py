@@ -17,6 +17,7 @@ class __Settings__(BaseSettings):
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 @lru_cache
