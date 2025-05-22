@@ -12,16 +12,28 @@ class StrategicGoalRepository:
         return session.exec(select(StrategicGoal)).all()
 
     @staticmethod
-    async def get_strategic_goal_by_id(strategic_goal_id: UUID, session: SessionDep) -> StrategicGoal | None:
-        return session.exec(select(StrategicGoal).where(StrategicGoal.id == strategic_goal_id)).first()
+    async def get_strategic_goal_by_id(
+        strategic_goal_id: UUID, session: SessionDep
+    ) -> StrategicGoal | None:
+        return session.exec(
+            select(StrategicGoal).where(StrategicGoal.id == strategic_goal_id)
+        ).first()
 
     @staticmethod
-    async def get_strategic_goals_by_brand_id(brand_id: UUID, session: SessionDep) -> List[StrategicGoal]:
-        return session.exec(select(StrategicGoal).where(StrategicGoal.brand_id == brand_id)).all()
+    async def get_strategic_goals_by_brand_id(
+        brand_id: UUID, session: SessionDep
+    ) -> List[StrategicGoal]:
+        return session.exec(
+            select(StrategicGoal).where(StrategicGoal.brand_id == brand_id)
+        ).all()
 
     @staticmethod
-    async def get_strategic_goals_by_user(user_id: UUID, session: SessionDep) -> List[StrategicGoal]:
-        return session.exec(select(StrategicGoal).where(StrategicGoal.user_id == user_id)).all()
+    async def get_strategic_goals_by_user(
+        user_id: UUID, session: SessionDep
+    ) -> List[StrategicGoal]:
+        return session.exec(
+            select(StrategicGoal).where(StrategicGoal.user_id == user_id)
+        ).all()
 
     @staticmethod
     async def create_strategic_goal(
@@ -35,7 +47,9 @@ class StrategicGoalRepository:
 
     @staticmethod
     async def update_strategic_goal(
-        strategic_goal_id: UUID, strategic_goal: StrategicGoalUpdate, session: SessionDep
+        strategic_goal_id: UUID,
+        strategic_goal: StrategicGoalUpdate,
+        session: SessionDep,
     ) -> StrategicGoal | None:
         existing_strategic_goal = session.get(StrategicGoal, strategic_goal_id)
         existing_strategic_goal.sqlmodel_update(strategic_goal)
@@ -46,9 +60,9 @@ class StrategicGoalRepository:
 
     @staticmethod
     async def archive_strategic_goal(
-        strategic_goal_id: UUID, strategic_goal: StrategicGoalArchive, session: SessionDep
+        strategic_goal: StrategicGoalArchive, session: SessionDep
     ) -> StrategicGoal | None:
-        existing_strategic_goal = session.get(StrategicGoal, strategic_goal_id)
+        existing_strategic_goal = session.get(StrategicGoal, strategic_goal.id)
         existing_strategic_goal.sqlmodel_update(strategic_goal)
         session.add(existing_strategic_goal)
         session.commit()
@@ -70,8 +84,9 @@ class StrategicGoalRepository:
     async def delete_all_strategic_goals_by_brand_id(
         brand_id: UUID, session: SessionDep
     ) -> List[StrategicGoal]:
-        strategic_goals = session.exec(select(StrategicGoal).where(
-            StrategicGoal.brand_id == brand_id)).all()
+        strategic_goals = session.exec(
+            select(StrategicGoal).where(StrategicGoal.brand_id == brand_id)
+        ).all()
         for strategic_goal in strategic_goals:
             session.delete(strategic_goal)
         session.commit()

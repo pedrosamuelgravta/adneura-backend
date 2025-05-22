@@ -33,7 +33,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
         )
     to_encode.update({"exp": expire, "token_type": TokenType.ACCESS})
     encoded_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     return encoded_jwt
 
 
@@ -42,25 +43,25 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None) -> 
     if expires_delta:
         expire = datetime.now(tz=UTC) + expires_delta
     else:
-        expire = datetime.now(
-            tz=UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAY)
+        expire = datetime.now(tz=UTC) + timedelta(
+            days=settings.REFRESH_TOKEN_EXPIRE_DAY
+        )
     to_encode.update({"exp": expire, "token_type": TokenType.REFRESH})
     encoded_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     return encoded_jwt
 
 
 def verify_token(token: str, token_type: TokenType):
     try:
-        print(token_type)
-        print(token)
-        payload = jwt.decode(token, settings.SECRET_KEY,
-                             algorithms=[settings.ALGORITHM])
-        print(payload)
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         if payload["token_type"] != token_type:
-            return False
+            return None
         return payload
     except jwt.ExpiredSignatureError:
-        return False
+        return None
     except jwt.InvalidTokenError:
-        return False
+        return None

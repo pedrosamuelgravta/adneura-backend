@@ -7,15 +7,28 @@ from api.services import AuthService
 from api.schemas import UserCreate, UserReturn
 from core.exceptions import UnauthorizedException
 
+from datetime import timedelta
+
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @auth_router.post("/login")
-async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: SessionDep):
+async def login(
+    response: Response,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: SessionDep,
+):
     print("entrou aqui")
     response_data = await AuthService.login(form_data, session)
     response.set_cookie(
-        key="refresh_token", value=response_data["refresh_token"], httponly=True, secure=True)
+        key="refresh_token",
+        value=response_data["refresh_token"],
+        httponly=True,
+        secure=True,
+        samesite="strict",
+        path="/refresh",
+        max_age=int(timedelta(days=10).total_seconds()),
+    )
 
     return {
         "access_token": response_data["access_token"],
@@ -36,3 +49,9 @@ async def refresh_access_token(request: Request):
         raise UnauthorizedException("Refresh token not found")
 
     return await AuthService.refresh_access_token(refresh_token=refresh_token)
+
+
+@auth_router.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie("refresh_token")
+    return {"message": "Logged out successfully"}

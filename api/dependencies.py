@@ -16,7 +16,7 @@ async def get_current_user(
     token_data = verify_token(token, TokenType.ACCESS)
     if token_data is None:
         raise UnauthorizedException("User not authenticated.")
-
+    print("token_data", token_data)
     user_id = token_data.get("sub")
     if not user_id:
         raise UnauthorizedException("User not authenticated.")

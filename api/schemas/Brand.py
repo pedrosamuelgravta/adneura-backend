@@ -28,8 +28,6 @@ class BrandCreate(BaseModel):
     name: str
     website_url: Optional[str] = None
 
-    user_id: Optional[UUID] = None
-
 
 class BrandUpdate(BaseModel):
     name: Optional[str] = None
@@ -43,8 +41,7 @@ class BrandUpdate(BaseModel):
     first_access: Optional[bool] = Field(default=False)
     brand_summary_active: Optional[bool] = Field(default=False, nullable=True)
     ad_legacy_active: Optional[bool] = Field(default=False, nullable=True)
-    strategic_goals_active: Optional[bool] = Field(
-        default=False, nullable=True)
+    strategic_goals_active: Optional[bool] = Field(default=False, nullable=True)
     audience_active: Optional[bool] = Field(default=False, nullable=True)
     brand_universe_active: Optional[bool] = Field(default=False, nullable=True)
     prompt: Optional[str] = Field(default=None, nullable=True)

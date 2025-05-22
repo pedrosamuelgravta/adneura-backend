@@ -1,8 +1,5 @@
-from pydantic import EmailStr
-from email_validator import validate_email
 from fastapi.security import OAuth2PasswordRequestForm
 from api.repositories.User import UserRepository
-from api.models import User
 from api.schemas import UserCreate, UserReturn
 from core.exceptions import *
 from core.security import (
@@ -12,10 +9,11 @@ from core.security import (
     verify_token,
 )
 from core.db import SessionDep
-
+from core.types import TokenType
 from datetime import timedelta
 
 from core.config import get_settings
+
 settings = get_settings()
 
 
@@ -26,13 +24,14 @@ class AuthService:
         if not user or not verify_password(form_data.password, user.hashed_password):
             raise UnauthorizedException("Invalid credentials")
 
-        access_token_expires = timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTE)
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTE)
         access_token = create_access_token(
-            data={"sub": str(user.id), "is_superuser": user.is_superuser}, expires_delta=access_token_expires
+            data={"sub": str(user.id), "is_superuser": user.is_superuser},
+            expires_delta=access_token_expires,
         )
         refresh_token = create_refresh_token(
-            data={"sub": str(user.id), "is_superuser": user.is_superuser})
+            data={"sub": str(user.id), "is_superuser": user.is_superuser}
+        )
 
         return {
             "access_token": access_token,
@@ -48,3 +47,18 @@ class AuthService:
         user = await UserRepository.create_user(user, session)
 
         return user
+
+    @staticmethod
+    async def refresh_access_token(refresh_token: str):
+        token_data = verify_token(token=refresh_token, token_type=TokenType.REFRESH)
+        if not token_data:
+            raise UnauthorizedException("Invalid refresh token")
+
+        access_token = create_access_token(
+            data={"sub": token_data.get("sub")}, token_type=TokenType.ACCESS
+        )
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+        }
