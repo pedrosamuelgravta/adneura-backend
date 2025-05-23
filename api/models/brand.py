@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 if TYPE_CHECKING:
     from api.models.user import User
     from api.models.audience import Audience
-    from api.models.strategic_goal import StrategicGoal
+    from api.models.campaign import Campaign
 
 
 class Brand(SQLModel, table=True):
@@ -36,12 +36,13 @@ class Brand(SQLModel, table=True):
     audiences: List["Audience"] = Relationship(
         back_populates="brand", cascade_delete=True
     )
-    strategic_goals: List["StrategicGoal"] = Relationship(
+    campaigns: List["Campaign"] = Relationship(
         back_populates="brand", cascade_delete=True
     )
 
     created_at: Optional[datetime] = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     updated_at: Optional[datetime] = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)},
