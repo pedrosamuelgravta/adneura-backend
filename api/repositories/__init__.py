@@ -4,3 +4,4 @@ from api.repositories.Audience import AudienceRepository
 from api.repositories.StrategicGoal import StrategicGoalRepository
 from api.repositories.Trigger import TriggerRepository
 from api.repositories.Demographic import DemographicRepository
+from api.repositories.Campaign import CampaignRepository

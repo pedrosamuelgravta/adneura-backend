@@ -6,3 +6,4 @@ from api.services.Audience import AudienceService
 from api.services.StrategicGoal import StrategicGoalService
 from api.services.Trigger import TriggerService
 from api.services.Demographic import DemographicService
+from api.services.Campaign import CampaignService
