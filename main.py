@@ -38,6 +38,7 @@ app.include_router(audience_router)
 app.include_router(strategic_goal_router)
 app.include_router(trigger_router)
 app.include_router(demographic_router)
+app.include_router(campaign_router)
 
 
 @app.post("/mensagem/teste")

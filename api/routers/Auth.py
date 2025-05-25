@@ -45,6 +45,7 @@ async def register_user(user: UserCreate, session: SessionDep) -> UserReturn:
 @auth_router.post("/refresh")
 async def refresh_access_token(request: Request):
     refresh_token = request.cookies.get("refresh_token")
+    print(refresh_token)
     if not refresh_token:
         raise UnauthorizedException("Refresh token not found")
 

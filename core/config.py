@@ -9,7 +9,7 @@ class __Settings__(BaseSettings):
     REDIS_STRING: str = "your_redis_string"
     OPENAI_API_KEY: str = "your_openai_api_key"
     DATABASE_STRING_NAME: Optional[str] = "db"
-    ACCESS_TOKEN_EXPIRE_MINUTE: Optional[int] = 7
+    ACCESS_TOKEN_EXPIRE_MINUTE: Optional[int] = 30
     REFRESH_TOKEN_EXPIRE_DAY: Optional[int] = 10
     SECRET_KEY: str = "my_secret_key"
     ALGORITHM: str = "HS256"

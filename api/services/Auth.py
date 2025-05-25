@@ -51,11 +51,13 @@ class AuthService:
     @staticmethod
     async def refresh_access_token(refresh_token: str):
         token_data = verify_token(token=refresh_token, token_type=TokenType.REFRESH)
+        print(token_data)
         if not token_data:
             raise UnauthorizedException("Invalid refresh token")
 
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTE)
         access_token = create_access_token(
-            data={"sub": token_data.get("sub")}, token_type=TokenType.ACCESS
+            data={"sub": token_data.get("sub")}, expires_delta=access_token_expires
         )
 
         return {
