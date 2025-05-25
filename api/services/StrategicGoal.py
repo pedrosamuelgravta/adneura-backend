@@ -39,11 +39,11 @@ class StrategicGoalService:
         return strategic_goal
 
     @staticmethod
-    async def get_strategic_goals_by_brand_id(
-        brand_id: UUID, session: SessionDep
+    async def get_strategic_goals_by_campaign_id(
+        campaign_id: UUID, session: SessionDep
     ) -> List[StrategicGoalReturn]:
-        return await StrategicGoalRepository.get_strategic_goals_by_brand_id(
-            brand_id, session
+        return await StrategicGoalRepository.get_strategic_goals_by_campaign_id(
+            campaign_id, session
         )
 
     @staticmethod

@@ -7,13 +7,13 @@ from uuid import UUID
 class StrategicGoalReturn(BaseModel):
     id: UUID
     strategic_goal: str
-    brand_id: UUID
+    campaign_id: UUID
     is_active: bool = True
 
 
 class StrategicGoalCreate(BaseModel):
     strategic_goal: str
-    brand_id: UUID
+    campaign_id: UUID
     is_active: bool = True
 
 

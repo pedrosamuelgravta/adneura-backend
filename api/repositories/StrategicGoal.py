@@ -20,11 +20,11 @@ class StrategicGoalRepository:
         ).first()
 
     @staticmethod
-    async def get_strategic_goals_by_brand_id(
-        brand_id: UUID, session: SessionDep
+    async def get_strategic_goals_by_campaign_id(
+        campaign_id: UUID, session: SessionDep
     ) -> List[StrategicGoal]:
         return session.exec(
-            select(StrategicGoal).where(StrategicGoal.brand_id == brand_id)
+            select(StrategicGoal).where(StrategicGoal.campaign_id == campaign_id)
         ).all()
 
     @staticmethod
