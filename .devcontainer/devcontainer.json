@@ -17,8 +17,7 @@
       "extensions": [
         "ms-python.python",
         "ms-python.black-formatter",
-        "ms-azuretools.vscode-containers",
-        "cweijan.vscode-database-client2"
+        "ms-azuretools.vscode-containers"
       ]
     }
   }

@@ -14,18 +14,6 @@ from core.exceptions import *
 
 class StrategicGoalService:
     @staticmethod
-    async def get_all_strategic_goals(session: SessionDep) -> List[StrategicGoalReturn]:
-        return await StrategicGoalRepository.get_all_strategic_goals(session)
-
-    @staticmethod
-    async def get_all_strategic_goals_by_user(
-        user_id: UUID, session: SessionDep
-    ) -> List[StrategicGoalReturn]:
-        return await StrategicGoalRepository.get_strategic_goals_by_user(
-            user_id, session
-        )
-
-    @staticmethod
     async def get_strategic_goal_by_id(
         strategic_goal_id: UUID, session: SessionDep
     ) -> StrategicGoalReturn:

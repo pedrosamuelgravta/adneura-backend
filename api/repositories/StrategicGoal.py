@@ -7,9 +7,6 @@ from uuid import UUID
 
 
 class StrategicGoalRepository:
-    @staticmethod
-    async def get_all_strategic_goals(session: SessionDep) -> List[StrategicGoal]:
-        return session.exec(select(StrategicGoal)).all()
 
     @staticmethod
     async def get_strategic_goal_by_id(
@@ -25,14 +22,6 @@ class StrategicGoalRepository:
     ) -> List[StrategicGoal]:
         return session.exec(
             select(StrategicGoal).where(StrategicGoal.campaign_id == campaign_id)
-        ).all()
-
-    @staticmethod
-    async def get_strategic_goals_by_user(
-        user_id: UUID, session: SessionDep
-    ) -> List[StrategicGoal]:
-        return session.exec(
-            select(StrategicGoal).where(StrategicGoal.user_id == user_id)
         ).all()
 
     @staticmethod
