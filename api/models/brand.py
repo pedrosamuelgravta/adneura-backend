@@ -23,7 +23,7 @@ class Brand(SQLModel, table=True):
     positioning: Optional[str] = Field(default=None, nullable=True)
     target_audience: Optional[str] = Field(default=None, nullable=True)
     key_competitors: Optional[str] = Field(default=None, nullable=True)
-    first_access: bool = Field(default=False)
+    first_access: bool = Field(default=True)
 
     brand_summary_active: bool = Field(default=False, nullable=True)
     ad_legacy_active: bool = Field(default=False, nullable=True)

@@ -1,7 +1,14 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from core.db import SessionDep
-from api.schemas import AudienceCreate, AudienceReturn, AudienceUpdate, UserReturn, AudienceAiGenerate, AudienceGenerateResponse
+from api.schemas import (
+    AudienceCreate,
+    AudienceReturn,
+    AudienceUpdate,
+    UserReturn,
+    AudienceAiGenerate,
+    AudienceGenerateResponse,
+)
 from api.services import AudienceService
 from api.dependencies import get_current_active_user
 from uuid import UUID
@@ -10,14 +17,12 @@ audience_router = APIRouter(prefix="/audience", tags=["Audience"])
 
 
 @audience_router.get("/", response_model=List[AudienceReturn])
-async def get_all_audiences(
+async def get_all_audiences_by_brand_id(
+    brand_id: UUID,
     session: SessionDep,
-    user_id: UUID = None,
     current_user: UserReturn = Depends(get_current_active_user),
 ) -> List[AudienceReturn]:
-    if user_id:
-        return await AudienceService.get_all_audiences_by_user(user_id, session)
-    return await AudienceService.get_all_audiences(session)
+    return await AudienceService.get_all_audiences_by_brand_id(brand_id, session)
 
 
 @audience_router.get("/{audience_id}", response_model=AudienceReturn)
@@ -71,6 +76,6 @@ async def generate_audiences_with_ai(
 async def analyze_audience(
     audience_id: UUID,
     session: SessionDep,
-    current_user: UserReturn = Depends(get_current_active_user)
+    current_user: UserReturn = Depends(get_current_active_user),
 ) -> AudienceReturn:
     return await AudienceService.analyze_audience(audience_id, session)

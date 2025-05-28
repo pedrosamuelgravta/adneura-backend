@@ -13,11 +13,17 @@ class Trigger(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     name: str
     description: str
+    core_idea: Optional[str]
+    narrative_hook: Optional[str]
+    why_it_works: Optional[str]
+    goal: Optional[str]
+    campaign_name: Optional[str] = Field(default=None, nullable=True)
     image_prompt: str
     trigger_img: Optional[str] = Field(default=None, nullable=True)
     territory: Optional[str] = Field(default=None, nullable=True)
     created_at: Optional[datetime] = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     updated_at: Optional[datetime] = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)},

@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Dict, Any
 from uuid import UUID
 
 from core.db import SessionDep
-from api.repositories import StrategicGoalRepository
+from api.repositories import StrategicGoalRepository, CampaignRepository
 from api.schemas import (
     StrategicGoalUpdate,
     StrategicGoalCreate,
@@ -13,6 +13,27 @@ from core.exceptions import *
 
 
 class StrategicGoalService:
+    @staticmethod
+    async def get_all_strategic_goals_by_brand_id(
+        brand_id: UUID, session: SessionDep
+    ) -> List[Dict[str, Any]]:
+        all_campaigns = await CampaignRepository.get_campaigns_by_brand_id(
+            brand_id, session
+        )
+
+        result: List[Dict[str, Any]] = []
+        for campaign in all_campaigns:
+            goals = await StrategicGoalRepository.get_strategic_goals_by_campaign_id(
+                campaign.id, session
+            )
+            for goal in goals:
+                result.append(
+                    {
+                        "goal_name": goal.strategic_goal,
+                    }
+                )
+        return result
+
     @staticmethod
     async def get_strategic_goal_by_id(
         strategic_goal_id: UUID, session: SessionDep
