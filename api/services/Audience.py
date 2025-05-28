@@ -18,8 +18,10 @@ from fastapi.responses import JSONResponse
 
 class AudienceService:
     @staticmethod
-    async def get_all_audiences(session: SessionDep) -> List[AudienceReturn]:
-        return await AudienceRepository.get_all_audiences(session)
+    async def get_all_audiences_by_brand_id(
+        brand_id: UUID, session: SessionDep
+    ) -> List[AudienceReturn]:
+        return await AudienceRepository.get_all_audiences_by_brand_id(brand_id, session)
 
     @staticmethod
     async def get_all_audiences_by_user(
@@ -42,9 +44,7 @@ class AudienceService:
     ) -> AudienceReturn:
         print(audience)
         audience_data = audience.model_dump()
-        new_audience = await AudienceRepository.create_audience(
-            audience_data, session
-        )
+        new_audience = await AudienceRepository.create_audience(audience_data, session)
         return new_audience
 
     @staticmethod
@@ -55,8 +55,7 @@ class AudienceService:
             audience_id, session
         )
         if not audience_data:
-            raise NotFoundException(
-                f"Audience with id {audience_id} not found")
+            raise NotFoundException(f"Audience with id {audience_id} not found")
 
         updated_audience = await AudienceRepository.update_audience(
             audience_id, audience, session
@@ -70,14 +69,15 @@ class AudienceService:
     ) -> AudienceGenerateResponse | None:
         brand = await BrandRepository.get_brand_by_id(request.brand_id, session)
         if not brand:
-            raise NotFoundException(
-                f"Brand with id {request.brand_id} not found")
+            raise NotFoundException(f"Brand with id {request.brand_id} not found")
 
         response = await OpenAiService.chat(
             system="""
-                    You are a seasoned strategic planner, inspired by industry legends like Jon Steel, Rosie Yakob, and Russell Davies.
-                    You have extensive experience in analyzing brands and crafting positioning strategies 
-                    with a sharp focus on consumer insights and and marker analysis.
+                    You are an audience strategist inspired by Susan Fournier, B. Joseph Pine II, and Alessandro Michel. 
+                    You specialize in decoding cultural and behavioral signals to create sharp, persona-driven audience segments. 
+                    You view consumers as layered individuals shaped by emotion, environment, and identity. You balance human truth with market relevance.
+           
+                    You have extensive experience in analyzing brands and crafting positioning strategies with a sharp focus on consumer insights and and marker analysis.
                     """,
             assistant="",
             user=f"""
@@ -93,7 +93,7 @@ class AudienceService:
 
                     Name: [Audience name]
                     Short Description: [2 sentences summarizing the audience's key traits, max 280 characters]
-                    Image Prompt: [generate a prompt to be used in text to image software to create a thumbnail for each audience. Make sure it generates a low detailed image, Iconography and landscape oriented]
+                    Image Prompt: [generate a prompt to be used in text to image software to create a thumbnail for each audience. Make sure it generates photographic detailed image, and landscape oriented, 16:9]
 
                     **Output Instructions**:
                     - Do not include introductions, explanations, or headers.
@@ -114,8 +114,7 @@ class AudienceService:
 
             name = text.split("Short Description:")[0].strip()
             short_description = (
-                text.split("Short Description:")[1].split(
-                    "Image Prompt:")[0].strip()
+                text.split("Short Description:")[1].split("Image Prompt:")[0].strip()
             )
             image_prompt = text.split("Image Prompt:")[1].strip()
 
@@ -144,12 +143,10 @@ class AudienceService:
     ) -> AudienceReturn:
         audience = await AudienceRepository.get_audience_by_id(audience_id, session)
         if not audience:
-            raise NotFoundException(
-                f"Audience with id {audience_id} not found")
+            raise NotFoundException(f"Audience with id {audience_id} not found")
         brand = await BrandRepository.get_brand_by_id(audience.brand_id, session)
         if not brand:
-            raise NotFoundException(
-                f"Brand with id {audience.brand_id} not found")
+            raise NotFoundException(f"Brand with id {audience.brand_id} not found")
 
         if all(
             [
@@ -168,9 +165,17 @@ class AudienceService:
 
         response = await OpenAiService.chat(
             system="""
-                    You are a seasoned strategic planner, inspired by industry legends like Jon Steel, Rosie Yakob, and Russell Davies.
-                    You have extensive experience in analyzing brands and crafting positioning strategies 
-                    with a sharp focus on consumer insights and and marker analysis.
+                    You are a cultural anthropologist and audience profiler, inspired by Sherry Turkle, Jan Chipchase, and Emmanuel Probst. 
+                    You break down people’s lives, motivations, and self-concepts into structured yet emotionally intelligent descriptions. 
+                    You connect identity, behavior, and cultural cues to help brands understand not just who people are — but why they act.
+           
+                    **Formatting Instructions**:
+                    - Always include "Demographics:" as a header before the demographic details.
+                    - Follow the exact structure provided in the user's input.
+                    - Do not include any introductions, explanations, or additional headers beyond what is specified.
+                    - Ensure consistency across all sections.
+                    - Use plain text formatting (no bold, asterisks, or quotation marks).
+                    - Avoid repeating any part of the user's input.
                     """,
             assistant="",
             user=f"""

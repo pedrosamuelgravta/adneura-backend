@@ -11,15 +11,17 @@ class AudienceReturn(BaseModel):
     id: UUID
     name: str
     description: str
-    image_url: str
-    key_tags: str
-    psycho_graphic: str
-    attitudinal: str
-    self_concept: str
-    lifestyle: str
-    media_habits: str
-    general_keywords: str
-    brand_keywords: str
+    image_url: Optional[str] = Field(default=None, nullable=True)
+
+    key_tags: Optional[str] = Field(default=None)
+    psycho_graphic: Optional[str] = Field(default=None)
+    attitudinal: Optional[str] = Field(default=None)
+    self_concept: Optional[str] = Field(default=None)
+    lifestyle: Optional[str] = Field(default=None)
+    media_habits: Optional[str] = Field(default=None)
+    general_keywords: Optional[str] = Field(default=None)
+    brand_keywords: Optional[str] = Field(default=None)
+
     triggers: Optional[List["Trigger"]] = Field(default=None, nullable=True)
     demographics: Optional["Demographic"] = Field(default=None, nullable=True)
 
