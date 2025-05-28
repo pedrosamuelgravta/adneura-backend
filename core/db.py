@@ -6,7 +6,7 @@ from core.config import get_settings
 settings = get_settings()
 postgresql_database_url = settings.DATABASE_STRING
 
-engine = create_engine(postgresql_database_url, echo=True)
+engine = create_engine(postgresql_database_url, echo=False)
 
 
 def initialize_db():

@@ -12,6 +12,7 @@ from api.schemas import (
 from api.services import AudienceService
 from api.dependencies import get_current_active_user
 from uuid import UUID
+import time
 
 audience_router = APIRouter(prefix="/audience", tags=["Audience"])
 
@@ -78,4 +79,6 @@ async def analyze_audience(
     session: SessionDep,
     current_user: UserReturn = Depends(get_current_active_user),
 ) -> AudienceReturn:
+    print("analyzing audience", audience_id)
+    print("Input time", time.time())
     return await AudienceService.analyze_audience(audience_id, session)
