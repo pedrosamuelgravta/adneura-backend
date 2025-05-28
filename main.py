@@ -31,14 +31,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user_router)
-app.include_router(auth_router)
-app.include_router(brand_router)
-app.include_router(audience_router)
-app.include_router(strategic_goal_router)
-app.include_router(trigger_router)
-app.include_router(demographic_router)
-app.include_router(campaign_router)
+app.include_router(user_router, prefix="/api")
+app.include_router(auth_router , prefix="/api")
+app.include_router(brand_router, prefix="/api")
+app.include_router(audience_router, prefix="/api")
+app.include_router(strategic_goal_router, prefix="/api")
+app.include_router(trigger_router, prefix="/api")
+app.include_router(demographic_router, prefix="/api")
+app.include_router(campaign_router, prefix="/api")
 
 
 @app.post("/mensagem/teste")
