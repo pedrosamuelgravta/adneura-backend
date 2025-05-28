@@ -267,11 +267,11 @@ class AudienceService:
             "race": demographics["race"],
             "education": demographics["education"],
             "location": demographics["location"],
-            "audience": audience,
+            "audience_id": audience.id,
         }
-        # await DemographicRepository.create_demographic(
-        #     demographic_data, session
-        # )
+        await DemographicRepository.create_demographic(
+            demographic_data, session
+        )
         await AudienceRepository.update_audience(audience_id, audience_data, session)
 
         return JSONResponse(
