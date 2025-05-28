@@ -1,4 +1,4 @@
-from openai import OpenAI
+from openai import AsyncOpenAI
 from core.exceptions import *
 from core.db import SessionDep
 from fastapi import FastAPI, Depends
@@ -28,14 +28,14 @@ class OpenAiService:
     @staticmethod
     async def chat(system: str, assistant: str, user: str, session: SessionDep, options: ChatOptions = ChatOptions(), ) -> dict:
         try:
-            openai = OpenAI(api_key=settings.OPENAI_API_KEY)
+            openai = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
             messages = [
                 {"role": "system", "content": system},
                 {"role": "assistant", "content": assistant},
                 {"role": "user", "content": user},
             ]
 
-            response = openai.chat.completions.create(
+            response = await openai.chat.completions.create(
                 messages=messages,
                 model=options.model,
                 temperature=options.temperature,

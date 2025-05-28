@@ -21,7 +21,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-origins = ["http://localhost:5173", "https://homolog.gravta.com"]
+origins = ["http://localhost:5173",
+           "http://localhost:8080", "https://homolog.gravta.com"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,7 +33,7 @@ app.add_middleware(
 )
 
 app.include_router(user_router, prefix="/api")
-app.include_router(auth_router , prefix="/api")
+app.include_router(auth_router, prefix="/api")
 app.include_router(brand_router, prefix="/api")
 app.include_router(audience_router, prefix="/api")
 app.include_router(strategic_goal_router, prefix="/api")
