@@ -8,6 +8,7 @@ from uuid import UUID
 
 from api.schemas import (
     TriggerCreate,
+    TriggerCreateWithGoal,
     TriggerReturn,
     TriggerUpdate,
     UserReturn,
@@ -91,3 +92,12 @@ async def generate_triggers_with_ai(
     current_user: UserReturn = Depends(get_current_active_user),
 ) -> TriggerReturn:
     return await TriggerService.generate_initial_triggers(audience_id, session)
+
+
+@trigger_router.post("/ai_generate_with_goal", response_model=TriggerReturn)
+async def generate_triggers_with_goal(
+    body: TriggerCreateWithGoal,
+    session: SessionDep,
+    current_user: UserReturn = Depends(get_current_active_user),
+) -> TriggerReturn:
+    return await TriggerService.generate_triggers_with_goal(body, session)

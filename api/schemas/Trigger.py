@@ -22,6 +22,13 @@ class TriggerCreate(BaseModel):
     audience_id: UUID
 
 
+class TriggerCreateWithGoal(BaseModel):
+    audience_id: UUID
+    campaign_name: str
+    goal: str
+    goal_color: str
+
+
 class TriggerUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None

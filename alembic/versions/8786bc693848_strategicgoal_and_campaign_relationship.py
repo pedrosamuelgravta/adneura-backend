@@ -29,7 +29,8 @@ def upgrade() -> None:
     op.drop_constraint(
         "strategic_goals_brand_id_fkey", "strategic_goals", type_="foreignkey"
     )
-    op.create_foreign_key(None, "strategic_goals", "campaigns", ["campaign_id"], ["id"])
+    op.create_foreign_key(None, "strategic_goals",
+                          "campaigns", ["campaign_id"], ["id"])
     op.drop_column("strategic_goals", "brand_id")
     # ### end Alembic commands ###
 

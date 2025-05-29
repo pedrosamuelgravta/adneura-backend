@@ -29,6 +29,7 @@ class StrategicGoalService:
             for goal in goals:
                 result.append(
                     {
+                        "campaign_name": campaign.campaign,
                         "goal_name": goal.strategic_goal,
                     }
                 )

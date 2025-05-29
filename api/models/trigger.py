@@ -21,6 +21,7 @@ class Trigger(SQLModel, table=True):
     image_prompt: str
     trigger_img: Optional[str] = Field(default=None, nullable=True)
     territory: Optional[str] = Field(default=None, nullable=True)
+    goal_color: Optional[str] = Field(default=None, nullable=True)
     created_at: Optional[datetime] = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
