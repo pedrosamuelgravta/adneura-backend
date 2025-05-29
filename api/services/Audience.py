@@ -14,6 +14,7 @@ from core.db import SessionDep
 
 from api.services import OpenAiService
 from fastapi.responses import JSONResponse
+from tasks.image import image_generation
 
 
 class AudienceService:
@@ -269,14 +270,57 @@ class AudienceService:
             "location": demographics["location"],
             "audience_id": audience.id,
         }
-        await DemographicRepository.create_demographic(
-            demographic_data, session
-        )
+        await DemographicRepository.create_demographic(demographic_data, session)
         await AudienceRepository.update_audience(audience_id, audience_data, session)
 
         return JSONResponse(
             content={
                 "message": f"Audience {audience.name} analyzed",
+            },
+            status_code=200,
+        )
+
+    @staticmethod
+    async def generate_audience_image(
+        brand_id: UUID,
+        session: SessionDep,
+        audience_id: UUID = None,
+    ) -> JSONResponse:
+        scheduled = 0
+        audiences = await AudienceRepository.get_all_audiences_by_brand_id(
+            brand_id, session
+        )
+
+        if not audiences:
+            raise NotFoundException(f"No audiences found for brand with id {brand_id}")
+
+        if audience_id:
+            audiences = [
+                audience for audience in audiences if audience.id == audience_id
+            ]
+
+            if not audiences:
+                raise NotFoundException(
+                    f"Audience with id {audience_id} not found for brand with id {brand_id}"
+                )
+
+        for audience in audiences:
+            audience_id = audience.id
+            has_img = bool(audience.image_url)
+            if not has_img:
+                file_name = f"B{brand_id}A{audience_id}img.jpg"
+                image_generation.delay(
+                    audience.image_prompt, file_name, "audience", str(audience_id)
+                )
+                scheduled += 1
+                print(
+                    f"   • Agendada task para audience {audience.id}: {file_name} - (total agendadas: {scheduled})"
+                )
+
+        return JSONResponse(
+            content={
+                "message": f"Scheduled {scheduled} image generation tasks for brand {brand_id}",
+                "scheduled": scheduled,
             },
             status_code=200,
         )

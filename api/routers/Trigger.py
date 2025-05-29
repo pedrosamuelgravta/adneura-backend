@@ -14,9 +14,9 @@ from api.schemas import (
     UserReturn,
 )
 
-trigger_router = APIRouter(
-    prefix="/trigger", tags=["Trigger"]
-)
+from fastapi.responses import JSONResponse
+
+trigger_router = APIRouter(prefix="/trigger", tags=["Trigger"])
 
 
 @trigger_router.get("/", response_model=List[TriggerReturn])
@@ -101,3 +101,13 @@ async def generate_triggers_with_goal(
     current_user: UserReturn = Depends(get_current_active_user),
 ) -> TriggerReturn:
     return await TriggerService.generate_triggers_with_goal(body, session)
+
+
+@trigger_router.post("/generate_image")
+async def generate_trigger_image(
+    brand_id: UUID,
+    session: SessionDep,
+    trigger_id: UUID = None,
+    current_user: UserReturn = Depends(get_current_active_user),
+) -> JSONResponse:
+    return await TriggerService.generate_trigger_image(brand_id, session, trigger_id)

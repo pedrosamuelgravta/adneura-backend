@@ -14,6 +14,8 @@ from api.dependencies import get_current_active_user
 from uuid import UUID
 import time
 
+from fastapi.responses import JSONResponse
+
 audience_router = APIRouter(prefix="/audience", tags=["Audience"])
 
 
@@ -82,3 +84,15 @@ async def analyze_audience(
     print("analyzing audience", audience_id)
     print("Input time", time.time())
     return await AudienceService.analyze_audience(audience_id, session)
+
+
+@audience_router.post("/generate_image")
+async def generate_audience_image(
+    brand_id: UUID,
+    session: SessionDep,
+    audience_id: UUID = None,
+    current_user: UserReturn = Depends(get_current_active_user),
+) -> JSONResponse:
+    return await AudienceService.generate_audience_image(
+        brand_id, session, audience_id
+    )

@@ -10,8 +10,15 @@ from api.repositories import (
     BrandRepository,
     StrategicGoalRepository,
 )
-from api.schemas import TriggerUpdate, TriggerCreate, TriggerReturn, TriggerCreateWithGoal
+from api.schemas import (
+    TriggerUpdate,
+    TriggerCreate,
+    TriggerReturn,
+    TriggerCreateWithGoal,
+)
 from core.exceptions import *
+
+from tasks.image import image_generation
 
 
 class TriggerService:
@@ -46,8 +53,7 @@ class TriggerService:
     ) -> TriggerReturn:
         trigger_obj = await TriggerRepository.create_trigger(trigger, session)
         if not trigger_obj:
-            raise NotFoundException(
-                f"Trigger with id {trigger_obj.id} not found")
+            raise NotFoundException(f"Trigger with id {trigger_obj.id} not found")
         return trigger_obj
 
     @staticmethod
@@ -56,12 +62,10 @@ class TriggerService:
     ) -> JSONResponse:
         audience = await AudienceRepository.get_audience_by_id(audience_id, session)
         if not audience:
-            raise NotFoundException(
-                f"Audience with id {audience_id} not found")
+            raise NotFoundException(f"Audience with id {audience_id} not found")
         brand = await BrandRepository.get_brand_by_id(audience.brand_id, session)
         if not brand:
-            raise NotFoundException(
-                f"Brand with id {audience.brand_id} not found")
+            raise NotFoundException(f"Brand with id {audience.brand_id} not found")
         strategic_goals = (
             await StrategicGoalService.get_all_strategic_goals_by_brand_id(
                 audience.brand_id, session
@@ -185,18 +189,17 @@ class TriggerService:
 
     @staticmethod
     async def generate_triggers_with_goal(
-        body: TriggerCreateWithGoal,
-        session: SessionDep
+        body: TriggerCreateWithGoal, session: SessionDep
     ) -> JSONResponse:
-        audience = await AudienceRepository.get_audience_by_id(body.audience_id, session)
+        audience = await AudienceRepository.get_audience_by_id(
+            body.audience_id, session
+        )
         if not audience:
-            raise NotFoundException(
-                f"Audience with id {body.audience_id} not found")
+            raise NotFoundException(f"Audience with id {body.audience_id} not found")
 
         brand = await BrandRepository.get_brand_by_id(audience.brand_id, session)
         if not brand:
-            raise NotFoundException(
-                f"Brand with id {audience.brand_id} not found")
+            raise NotFoundException(f"Brand with id {audience.brand_id} not found")
 
         prompt = f"""
                 Considering
@@ -256,11 +259,21 @@ class TriggerService:
         for trigger_text in new_triggers:
             sections = {
                 "title": trigger_text.split("Description:")[0].strip(),
-                "description": trigger_text.split("Description:")[1].split("Core Idea:")[0].strip(),
-                "core_idea": trigger_text.split("Core Idea:")[1].split("Narrative Hook:")[0].strip(),
-                "narrative_hook": trigger_text.split("Narrative Hook:")[1].split("Why it Works:")[0].strip(),
-                "why_it_works": trigger_text.split("Why it Works:")[1].split("Goal:")[0].strip(),
-                "goal": trigger_text.split("Goal:")[1].split("Image Prompt:")[0].strip(),
+                "description": trigger_text.split("Description:")[1]
+                .split("Core Idea:")[0]
+                .strip(),
+                "core_idea": trigger_text.split("Core Idea:")[1]
+                .split("Narrative Hook:")[0]
+                .strip(),
+                "narrative_hook": trigger_text.split("Narrative Hook:")[1]
+                .split("Why it Works:")[0]
+                .strip(),
+                "why_it_works": trigger_text.split("Why it Works:")[1]
+                .split("Goal:")[0]
+                .strip(),
+                "goal": trigger_text.split("Goal:")[1]
+                .split("Image Prompt:")[0]
+                .strip(),
                 "image_prompt": trigger_text.split("Image Prompt:")[1].strip(),
             }
             parsed_triggers.append(sections)
@@ -280,7 +293,9 @@ class TriggerService:
                 "audience_id": body.audience_id,
             }
             print(trigger_obj)
-            created_trigger = await TriggerRepository.create_trigger(trigger_obj, session)
+            created_trigger = await TriggerRepository.create_trigger(
+                trigger_obj, session
+            )
             created.append(created_trigger)
 
         return JSONResponse(
@@ -306,4 +321,50 @@ class TriggerService:
     ) -> List[TriggerReturn]:
         return await TriggerRepository.delete_all_triggers_by_audience(
             audience_id, session
+        )
+
+    @staticmethod
+    async def generate_trigger_image(
+        brand_id: UUID,
+        session: SessionDep,
+        trigger_id: UUID = None,
+    ) -> JSONResponse:
+        scheduled = 0
+        audiences = await AudienceRepository.get_all_audiences_by_brand_id(
+            brand_id, session
+        )
+
+        if not audiences:
+            raise NotFoundException(f"No audiences found for brand with id {brand_id}")
+
+        for audience in audiences:
+            triggers_qs = await TriggerRepository.get_all_triggers_by_audience(
+                audience.id, session
+            )
+
+            if trigger_id:
+                triggers_qs = [
+                    trigger for trigger in triggers_qs if trigger.id == trigger_id
+                ]
+
+            for trigger in triggers_qs:
+                t_id = trigger.id
+                has_img = bool(trigger.trigger_img)
+
+                if not has_img:
+                    file_name = f"B{brand_id}A{audience.id}T{t_id}img.jpg"
+                    image_generation.delay(
+                        trigger.image_prompt, file_name, "trigger", str(t_id)
+                    )
+
+                    scheduled += 1
+                    print(
+                        f"   • Agendada task para trigger {t_id} (total agendadas: {scheduled})"
+                    )
+
+        return JSONResponse(
+            content={
+                "message": f"Image generation tasks scheduled for {scheduled} triggers."
+            },
+            status_code=200,
         )
