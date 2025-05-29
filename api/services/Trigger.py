@@ -53,7 +53,8 @@ class TriggerService:
     ) -> TriggerReturn:
         trigger_obj = await TriggerRepository.create_trigger(trigger, session)
         if not trigger_obj:
-            raise NotFoundException(f"Trigger with id {trigger_obj.id} not found")
+            raise NotFoundException(
+                f"Trigger with id {trigger_obj.id} not found")
         return trigger_obj
 
     @staticmethod
@@ -62,10 +63,12 @@ class TriggerService:
     ) -> JSONResponse:
         audience = await AudienceRepository.get_audience_by_id(audience_id, session)
         if not audience:
-            raise NotFoundException(f"Audience with id {audience_id} not found")
+            raise NotFoundException(
+                f"Audience with id {audience_id} not found")
         brand = await BrandRepository.get_brand_by_id(audience.brand_id, session)
         if not brand:
-            raise NotFoundException(f"Brand with id {audience.brand_id} not found")
+            raise NotFoundException(
+                f"Brand with id {audience.brand_id} not found")
         strategic_goals = (
             await StrategicGoalService.get_all_strategic_goals_by_brand_id(
                 audience.brand_id, session
@@ -195,11 +198,13 @@ class TriggerService:
             body.audience_id, session
         )
         if not audience:
-            raise NotFoundException(f"Audience with id {body.audience_id} not found")
+            raise NotFoundException(
+                f"Audience with id {body.audience_id} not found")
 
         brand = await BrandRepository.get_brand_by_id(audience.brand_id, session)
         if not brand:
-            raise NotFoundException(f"Brand with id {audience.brand_id} not found")
+            raise NotFoundException(
+                f"Brand with id {audience.brand_id} not found")
 
         prompt = f"""
                 Considering
@@ -292,15 +297,15 @@ class TriggerService:
                 "goal_color": body.goal_color,
                 "audience_id": body.audience_id,
             }
-            print(trigger_obj)
             created_trigger = await TriggerRepository.create_trigger(
                 trigger_obj, session
             )
-            created.append(created_trigger)
+            created.append(created_trigger.model_dump())
 
         return JSONResponse(
             content={
-                "message": f"Triggers for Audience ID {body.audience_id} created successfully"
+                "message": f"Triggers for Audience ID {body.audience_id} created successfully",
+                "trigger_id": [str(trigger["id"]) for trigger in created],
             },
             status_code=201,
         )
@@ -335,7 +340,8 @@ class TriggerService:
         )
 
         if not audiences:
-            raise NotFoundException(f"No audiences found for brand with id {brand_id}")
+            raise NotFoundException(
+                f"No audiences found for brand with id {brand_id}")
 
         for audience in audiences:
             triggers_qs = await TriggerRepository.get_all_triggers_by_audience(
