@@ -6,6 +6,8 @@ from uuid import UUID
 
 from api.models import Trigger, Demographic
 
+from datetime import datetime
+
 
 class AudienceReturn(BaseModel):
     id: UUID
@@ -24,6 +26,8 @@ class AudienceReturn(BaseModel):
 
     triggers: Optional[List["Trigger"]] = Field(default=None, nullable=True)
     demographics: Optional["Demographic"] = Field(default=None, nullable=True)
+
+    created_at: Optional[datetime] = Field(default=None, nullable=True)
 
 
 class AudienceCreate(BaseModel):
