@@ -8,6 +8,7 @@ from api.schemas import (
     UserReturn,
     AudienceAiGenerate,
     AudienceGenerateResponse,
+    GenerateImageRequest,
 )
 from api.services import AudienceService
 from api.dependencies import get_current_active_user
@@ -88,9 +89,8 @@ async def analyze_audience(
 
 @audience_router.post("/generate_image")
 async def generate_audience_image(
-    brand_id: UUID,
+    request: GenerateImageRequest,
     session: SessionDep,
-    audience_id: UUID = None,
     current_user: UserReturn = Depends(get_current_active_user),
 ) -> JSONResponse:
-    return await AudienceService.generate_audience_image(brand_id, session, audience_id)
+    return await AudienceService.generate_audience_image(request.brand_id, session, request.audience_id)

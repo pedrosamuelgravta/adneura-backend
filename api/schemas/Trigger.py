@@ -44,3 +44,8 @@ class TriggerDelete(BaseModel):
 
 class TriggerAllDelete(BaseModel):
     audience_id: UUID
+
+
+class GenerateTriggerImageRequest(BaseModel):
+    brand_id: UUID
+    trigger_id: UUID | None = None

@@ -71,3 +71,8 @@ class AudienceAiGenerate(BaseModel):
 class AudienceGenerateResponse(BaseModel):
     message: str
     audiences: Optional[int]
+
+
+class GenerateImageRequest(BaseModel):
+    brand_id: UUID
+    audience_id: UUID | None = None
