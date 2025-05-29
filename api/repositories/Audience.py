@@ -53,6 +53,18 @@ class AudienceRepository:
         return existing_audience
 
     @staticmethod
+    async def update_analyze_audience(
+        audience_id: UUID, audience: dict, session: SessionDep
+    ) -> Audience | None:
+        print("entrou no update_audience")
+        existing_audience = session.get(Audience, audience_id)
+        existing_audience.sqlmodel_update(audience)
+        session.add(existing_audience)
+        session.commit()
+        session.refresh(existing_audience)
+        return existing_audience
+
+    @staticmethod
     def update_audience_image_url(
         audience_id: UUID, image_url: str, session: SessionDep
     ) -> Audience | None:
