@@ -10,7 +10,7 @@ from api.models import Trigger, Demographic
 class AudienceReturn(BaseModel):
     id: UUID
     name: str
-    description: str
+    description: Optional[str] = Field(default=None, nullable=True)
     image_url: Optional[str] = Field(default=None, nullable=True)
 
     key_tags: Optional[str] = Field(default=None)

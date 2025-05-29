@@ -93,6 +93,4 @@ async def generate_audience_image(
     audience_id: UUID = None,
     current_user: UserReturn = Depends(get_current_active_user),
 ) -> JSONResponse:
-    return await AudienceService.generate_audience_image(
-        brand_id, session, audience_id
-    )
+    return await AudienceService.generate_audience_image(brand_id, session, audience_id)
