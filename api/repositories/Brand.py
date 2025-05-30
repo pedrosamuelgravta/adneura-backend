@@ -41,3 +41,12 @@ class BrandRepository:
         session.commit()
         session.refresh(existing_brand)
         return existing_brand
+
+    @staticmethod
+    async def delete_brand(brand_id: UUID, session: SessionDep) -> Brand | None:
+        brand = session.get(Brand, brand_id)
+        if not brand:
+            return None
+        session.delete(brand)
+        session.commit()
+        return brand

@@ -21,7 +21,8 @@ class Brand(SQLModel, table=True):
     key_characteristics: Optional[str] = Field(default=None, nullable=True)
     category: Optional[str] = Field(default=None, nullable=True)
     positioning: Optional[str] = Field(default=None, nullable=True)
-    target_audience: Optional[str] = Field(default=None, nullable=True)
+    traditional_target_audience: Optional[str] = Field(
+        default=None, nullable=True)
     key_competitors: Optional[str] = Field(default=None, nullable=True)
     first_access: bool = Field(default=True)
 

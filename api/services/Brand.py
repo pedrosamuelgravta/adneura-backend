@@ -43,7 +43,7 @@ class BrandService:
             "key_characteristics": f"List 3 to 4 bullet points highlighting {brand.name}'s defining qualities. Use only the bullet points with no explanation or introduction.",
             "category": f"Provide the primary industry of {brand.name} in one or two words, e.g., 'luxury fashion', 'consumer electronics'. Do not explain.",
             "positioning": f"In one or two sentences, describe how {brand.name} is positioned in the market. Do not add any introduction or explanation.",
-            "target_audience": f"List 3 to 4 bullet points describing {brand.name}'s key demographics and psychographics. Do not include any explanation.",
+            "traditional_target_audience": f"List 3 to 4 bullet points describing {brand.name}'s key demographics and psychographics. Do not include any explanation.",
             "key_competitors": f"List up to 3 major competitors for {brand.name}, each with a brief description of what differentiates them. Do not include any introduction or explanation.",
         }
         brand_data = brand.model_dump()
@@ -65,6 +65,18 @@ class BrandService:
             raise InternalServerError("Failed to create brand")
 
         return brand
+
+    @staticmethod
+    async def delete_brand(brand_id: UUID, session: SessionDep) -> BrandReturn:
+        brand = await BrandRepository.get_brand_by_id(brand_id, session)
+        if not brand:
+            raise NotFoundException("Brand not found")
+
+        deleted_brand = await BrandRepository.delete_brand(brand_id, session)
+        if not deleted_brand:
+            raise InternalServerError("Failed to delete brand")
+
+        return deleted_brand
 
     @staticmethod
     async def update_brand(brand_id: UUID, brand: BrandUpdate, session: SessionDep) -> BrandReturn | JSONResponse:
@@ -123,20 +135,21 @@ class BrandService:
                 "key_characteristics",
                 "category",
                 "positioning",
-                "target_audience",
+                "traditional_target_audience",
                 "key_competitors",
             ]
         elif field == "positioning":
-            fields_to_update = ["target_audience", "key_competitors"]
-        elif field == "target_audience":
+            fields_to_update = [
+                "traditional_target_audience", "key_competitors"]
+        elif field == "traditional_target_audience":
             fields_to_update = ["key_competitors"]
 
         if field == "positioning":
             guideline_field = "positioning"
             guideline_text = brand.positioning
-        elif field == "target audience":
-            guideline_field = "target audience"
-            guideline_text = brand.target_audience
+        elif field == "tradicional target audience":
+            guideline_field = "tradicional target audience"
+            guideline_text = brand.traditional_target_audience
         else:
             guideline_field = "about"
             guideline_text = brand.about
@@ -146,7 +159,7 @@ class BrandService:
             "key_characteristics": f"List 3 to 4 bullet points highlighting {brand.name}'s defining qualities. Use only the bullet points with no explanation or introduction.",
             "category": f"Provide the primary industry of {brand.name} in one or two words, e.g., 'luxury fashion', 'consumer electronics'. Do not explain.",
             "positioning": f"In one or two sentences, describe how {brand.name} is positioned in the market. Do not add any introduction or explanation.",
-            "target_audience": f"List 3 to 4 bullet points describing {brand.name}'s key demographics and psychographics. Do not include any explanation.",
+            "traditional_target_audience": f"List 3 to 4 bullet points describing {brand.name}'s key demographics and psychographics. Do not include any explanation.",
             "key_competitors": f"List up to 3 major competitors for {brand.name}, each with a brief description of what differentiates them. Do not include any introduction or explanation.",
         }
 
