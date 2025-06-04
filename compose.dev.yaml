@@ -40,6 +40,28 @@ services:
       - .env
     networks:
       - adneura-net
+  
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - adneura-net
+  
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    networks:
+      - adneura-net
+
+volumes:
+  postgres_data:
+  redis_data:
 
 networks:
   adneura-net:
