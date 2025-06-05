@@ -39,7 +39,7 @@ async def create_demographic(
     return await DemographicService.create_demographic(demographic, session)
 
 
-@demographic_router.put("/{demographic_id}", response_model=DemographicReturn)
+@demographic_router.patch("/{demographic_id}", response_model=DemographicReturn)
 async def update_demographic(
     demographic_id: UUID,
     demographic: DemographicUpdate,

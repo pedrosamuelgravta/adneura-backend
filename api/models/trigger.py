@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 if TYPE_CHECKING:
     from api.models.audience import Audience
+    from api.models.strategic_goal import StrategicGoal
 
 
 class Trigger(SQLModel, table=True):
@@ -16,12 +17,9 @@ class Trigger(SQLModel, table=True):
     core_idea: Optional[str]
     narrative_hook: Optional[str]
     why_it_works: Optional[str]
-    goal: Optional[str]
-    campaign_name: Optional[str] = Field(default=None, nullable=True)
     image_prompt: str
     trigger_img: Optional[str] = Field(default=None, nullable=True)
     territory: Optional[str] = Field(default=None, nullable=True)
-    goal_color: Optional[str] = Field(default=None, nullable=True)
     created_at: Optional[datetime] = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
@@ -29,6 +27,9 @@ class Trigger(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc)},
     )
+
+    strategic_goal_id: UUID = Field(foreign_key="strategic_goals.id")
+    strategic_goal: 'StrategicGoal' = Relationship(back_populates="triggers")
 
     audience_id: UUID = Field(foreign_key="audiences.id")
     audience: "Audience" = Relationship(back_populates="triggers")

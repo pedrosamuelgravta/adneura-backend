@@ -58,7 +58,7 @@ async def create_trigger(
     return await TriggerService.create_trigger(trigger, session)
 
 
-@trigger_router.put("/{trigger_id}", response_model=TriggerReturn)
+@trigger_router.patch("/{trigger_id}", response_model=TriggerReturn)
 async def update_trigger(
     trigger_id: UUID,
     trigger: TriggerUpdate,

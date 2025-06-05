@@ -71,6 +71,18 @@ class TriggerRepository:
         return existing_trigger
 
     @staticmethod
+    async def delete_all_triggers_by_audience_id(
+        audience_id: UUID, session: SessionDep
+    ) -> List[Trigger]:
+        existing_triggers = session.exec(
+            select(Trigger).where(Trigger.audience_id == audience_id)
+        ).all()
+        for trigger in existing_triggers:
+            session.delete(trigger)
+        session.commit()
+        return existing_triggers
+
+    @staticmethod
     async def delete_all_triggers_by_brand_id(
         brand_id: UUID, session: SessionDep
     ) -> List[Trigger]:

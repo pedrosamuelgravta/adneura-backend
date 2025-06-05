@@ -6,12 +6,12 @@ from uuid import UUID
 
 class DemographicReturn(BaseModel):
     id: UUID
-    gender: str
-    age_bracket: str
-    hhi: str
-    ethnicity: str
-    education: str
-    location: str
+    gender: Optional[str] = None
+    age_bracket: Optional[str] = None
+    hhi: Optional[str] = None
+    ethnicity: Optional[str] = None
+    education: Optional[str] = None
+    location: Optional[str] = None
     audience_id: UUID
 
 

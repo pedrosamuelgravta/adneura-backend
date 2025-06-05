@@ -30,6 +30,7 @@ class TriggerService:
     async def get_all_triggers_by_audience(
         audience_id: UUID, session: SessionDep
     ) -> List[TriggerReturn]:
+        print(audience_id)
         return await TriggerRepository.get_all_triggers_by_audience(
             audience_id, session
         )
@@ -78,7 +79,11 @@ class TriggerService:
             raise NotFoundException(
                 f"Strategic goals with brand id {audience.brand_id} not found"
             )
-
+        print("mapping strategic goals",
+              list(map(lambda goal: {
+                  "goal_name": goal["goal_name"],
+                  "campaign_name": goal["campaign_name"],
+              }, strategic_goals)))
         response = await OpenAiService.chat(
             system=f"""
                     You are a behavioral strategist and emotional narrative expert, influenced by Rory Sutherland, Lisa Feldman Barrett, and Les Binet.
@@ -96,7 +101,10 @@ class TriggerService:
                 the audience {audience.name} described as {audience.description}.
                 Focus on the psychographics, attitudinal, self-concept and lifestyle.
 
-                Create 3 very distinct and relevant message triggers for each {strategic_goals}.
+                Create 3 very distinct and relevant message triggers for each {list(map(lambda goal: {
+                "goal_name": goal["goal_name"],
+                "campaign_name": goal["campaign_name"],
+            }, strategic_goals))}.
                 Pinpoint specific life events, emotions, or circumstances that move this audience towards the brand goals. These could range from seasonal needs to personal milestones.
 
                 For each trigger, describe the trigger and how it will motivate the specific audience.
@@ -164,9 +172,14 @@ class TriggerService:
 
         color_map = ["#3FE2E8", "#FF36C3", "#FFD036"]
 
-        for idx, trigger in enumerate(parsed_triggers):
+        for trigger in parsed_triggers:
 
-            color = color_map[idx % len(color_map)]
+            strategic_goal_filtered = next(
+                (goal for goal in strategic_goals if goal["goal_name"] == trigger["goal"]),
+                None,
+            )
+            if not strategic_goal_filtered:
+                continue
 
             trigger_obj = {
                 "name": trigger["title"],
@@ -174,11 +187,9 @@ class TriggerService:
                 "core_idea": trigger["core_idea"],
                 "narrative_hook": trigger["narrative_hook"],
                 "why_it_works": trigger["why_it_works"],
-                "goal": trigger["goal"],
-                "campaign_name": trigger["campaign_name"],
-                "goal_color": color.replace("#", ""),
                 "image_prompt": trigger["image_prompt"],
                 "audience_id": audience_id,
+                "strategic_goal_id": strategic_goal_filtered["goal_id"]
             }
 
             await TriggerRepository.create_trigger(trigger_obj, session)
@@ -206,6 +217,13 @@ class TriggerService:
             raise NotFoundException(
                 f"Brand with id {audience.brand_id} not found")
 
+        strategic_goal = await StrategicGoalRepository.get_strategic_goal_by_id(
+            body.strategic_goal_id, session
+        )
+        if not strategic_goal:
+            raise NotFoundException(
+                f"Strategic goal with id {body.strategic_goal_id} not found")
+
         prompt = f"""
                 Considering
                 {brand.name},
@@ -216,7 +234,7 @@ class TriggerService:
                 the audience {audience.name} described as {audience.description}.
                 Focus on the psychographics, attitudinal, self-concept and lifestyle.
 
-                Create a relevant message trigger for this goal: {body.goal}.
+                Create a relevant message trigger for this goal: {strategic_goal.strategic_goal}.
                 Pinpoint specific life events, emotions, or circumstances that move this audience towards the brand goals. These could range from seasonal needs to personal milestones.
 
                 For trigger, describe the trigger and how it will motivate the specific audience.
@@ -227,13 +245,11 @@ class TriggerService:
 
                 For trigger, follow this exact structure:
 
-
                 Title: [Trigger Title]
                 Description: [1 paragraph summarizing the message trigger]
                 Core Idea: [1 paragraph describing the core idea behind the message trigger]
                 Narrative Hook: [1 paragraph describing how the brand, service or product is part of the audience routine]
                 Why it Works: [1 paragraph explaining why this message trigger will work with this audience]
-                Goal: [use exactly the name of the goal referenced above]
                 Image Prompt: [generate a prompt to be used in text to image GenAI to create a scene that best describes the message trigger. Make sure it represents the trigger and its target audience. Generate a detailed image and include the best product, service or brand best fit for the audience]
 
                 Output Instructions:
@@ -242,7 +258,6 @@ class TriggerService:
                 - Use plain text formatting (no bold, asterisks, or quotation marks).
                 - Avoid repeating any part of the user's input.
                 - Follow the structure strictly and consistently.
-
         """
 
         response = await OpenAiService.chat(
@@ -274,9 +289,6 @@ class TriggerService:
                 .split("Why it Works:")[0]
                 .strip(),
                 "why_it_works": trigger_text.split("Why it Works:")[1]
-                .split("Goal:")[0]
-                .strip(),
-                "goal": trigger_text.split("Goal:")[1]
                 .split("Image Prompt:")[0]
                 .strip(),
                 "image_prompt": trigger_text.split("Image Prompt:")[1].strip(),
@@ -291,11 +303,9 @@ class TriggerService:
                 "core_idea": trigger["core_idea"],
                 "narrative_hook": trigger["narrative_hook"],
                 "why_it_works": trigger["why_it_works"],
-                "goal": trigger["goal"],
                 "image_prompt": trigger["image_prompt"],
-                "campaign_name": body.campaign_name,
-                "goal_color": body.goal_color,
                 "audience_id": body.audience_id,
+                "strategic_goal_id": body.strategic_goal_id
             }
             created_trigger = await TriggerRepository.create_trigger(
                 trigger_obj, session
@@ -324,7 +334,7 @@ class TriggerService:
     async def delete_all_triggers_by_audience(
         audience_id: UUID, session: SessionDep
     ) -> List[TriggerReturn]:
-        return await TriggerRepository.delete_all_triggers_by_audience(
+        return await TriggerRepository.delete_all_triggers_by_audience_id(
             audience_id, session
         )
 

@@ -37,10 +37,12 @@ class DemographicRepository:
         demographic_id: UUID, demographic: DemographicUpdate, session: SessionDep
     ) -> Demographic | None:
         existing_demographic = session.get(Demographic, demographic_id)
-        existing_demographic.sqlmodel_update(demographic)
+        existing_demographic.sqlmodel_update(
+            demographic.model_dump(exclude_unset=True))
         session.add(existing_demographic)
         session.commit()
         session.refresh(existing_demographic)
+        print(existing_demographic)
         return existing_demographic
 
     @staticmethod

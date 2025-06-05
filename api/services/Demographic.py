@@ -49,6 +49,8 @@ class DemographicService:
     async def update_demographic(
         demographic_id: UUID, demographic: DemographicUpdate, session: SessionDep
     ) -> DemographicReturn:
+        print(f"Updating demographic with id: {demographic_id}")
+        print(f"Demographic data: {demographic}")
         demographic = await DemographicRepository.update_demographic(
             demographic_id, demographic, session
         )

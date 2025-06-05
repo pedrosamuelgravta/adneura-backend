@@ -43,7 +43,6 @@ class AudienceRepository:
     async def update_audience(
         audience_id: UUID, audience: AudienceUpdate, session: SessionDep
     ) -> Audience | None:
-        print("entrou no update_audience")
         existing_audience = session.get(Audience, audience_id)
         existing_audience.sqlmodel_update(
             audience.model_dump(exclude_unset=True))

@@ -58,7 +58,7 @@ class AudienceService:
         if not audience_data:
             raise NotFoundException(
                 f"Audience with id {audience_id} not found")
-
+        print(audience)
         updated_audience = await AudienceRepository.update_audience(
             audience_id, audience, session
         )
@@ -270,7 +270,7 @@ class AudienceService:
             "gender": demographics["gender"],
             "age_bracket": demographics["age bracket"],
             "hhi": demographics["hhi"],
-            "race": demographics["race"],
+            "ethnicity": demographics["race"],
             "education": demographics["education"],
             "location": demographics["location"],
             "audience_id": audience.id,
