@@ -111,3 +111,12 @@ async def generate_trigger_image(
     current_user: UserReturn = Depends(get_current_active_user),
 ) -> JSONResponse:
     return await TriggerService.generate_trigger_image(request.brand_id, session, request.trigger_id)
+
+
+@trigger_router.post("/group_territories/{brand_id}")
+async def group_triggers_into_territories(
+    brand_id: UUID,
+    session: SessionDep,
+    current_user: UserReturn = Depends(get_current_active_user),
+) -> JSONResponse:
+    return await TriggerService.group_triggers_into_territories(brand_id, session)

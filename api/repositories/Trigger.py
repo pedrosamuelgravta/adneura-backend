@@ -44,11 +44,15 @@ class TriggerRepository:
         trigger_id: UUID, trigger: TriggerUpdate, session: SessionDep
     ) -> Trigger | None:
         existing_trigger = session.get(Trigger, trigger_id)
-        existing_trigger.sqlmodel_update(trigger)
-        session.add(existing_trigger)
-        session.commit()
-        session.refresh(existing_trigger)
-        return existing_trigger
+        if existing_trigger:
+            update_data = trigger.model_dump(exclude_unset=True)
+            for key, value in update_data.items():
+                setattr(existing_trigger, key, value)
+            session.add(existing_trigger)
+            session.commit()
+            session.refresh(existing_trigger)
+            return existing_trigger
+        return None
 
     @staticmethod
     def update_trigger_image_url(

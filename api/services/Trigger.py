@@ -384,3 +384,184 @@ class TriggerService:
             },
             status_code=200,
         )
+
+    @staticmethod
+    async def group_triggers_into_territories(
+        brand_id: UUID, session: SessionDep
+    ) -> JSONResponse:
+        audiences = await AudienceRepository.get_all_audiences_by_brand_id(
+            brand_id, session
+        )
+        if not audiences:
+            raise NotFoundException(
+                f"No audiences found for brand with id {brand_id}")
+
+        brand = await BrandRepository.get_brand_by_id(brand_id, session)
+        if not brand:
+            raise NotFoundException(
+                f"Brand with id {brand_id} not found")
+
+        # Get all triggers across all audiences
+        all_triggers_list = []
+        audiences_data = []
+        all_triggers_set = set()
+
+        for audience in audiences:
+            triggers = await TriggerRepository.get_all_triggers_by_audience(
+                audience.id, session
+            )
+            audience_info = {
+                "name": audience.name,
+                "description": audience.description,
+                "key_tags": audience.key_tags,
+                "psycho_graphic": audience.psycho_graphic,
+                "attitudinal": audience.attitudinal,
+                "self_concept": audience.self_concept,
+                "lifestyle": audience.lifestyle,
+                "media_habits": audience.media_habits,
+                "general_keywords": audience.general_keywords,
+                "brand_keywords": audience.brand_keywords,
+                "triggers": [
+                    {"name": trigger.name, "description": trigger.description}
+                    for trigger in triggers
+                ],
+            }
+            for trigger in triggers:
+                all_triggers_set.add(trigger.name)
+                all_triggers_list.append({
+                    "id": trigger.id,
+                    "name": trigger.name,
+                    "audience_name": audience.name
+                })
+
+            audiences_data.append(audience_info)
+
+        # Format audiences data for the prompt
+        formatted_audiences = "\n\n".join(
+            f"### Audience: {audience['name']}\n"
+            f"Description: {audience['description']}\n"
+            f"Key Tags: {audience['key_tags']}\n"
+            f"Psycho-graphic: {audience['psycho_graphic']}\n"
+            f"Attitudinal: {audience['attitudinal']}\n"
+            f"Self Concept: {audience['self_concept']}\n"
+            f"Lifestyle: {audience['lifestyle']}\n"
+            f"Media Habits: {audience['media_habits']}\n"
+            f"Triggers:\n"
+            + "\n".join(
+                f"- {trigger['name']}: {trigger['description']}"
+                for trigger in audience["triggers"]
+            )
+            for audience in audiences_data
+        )
+
+        response = await OpenAiService.chat(
+            system=f"""
+            You are a seasoned strategic planner, inspired by industry
+            legends like Jon Steel, Rosie Yakob, and Russell Davies.
+            You have extensive experience in analyzing brands and crafting
+            positioning strategies with a sharp focus on consumer insights
+            and market analysis.
+            """,
+            assistant=f"""
+            Considering the following Audiences details:
+                Target Audiences: {brand.traditional_target_audience}  
+                {formatted_audiences}
+            """,
+            user=f"""
+            Group the triggers into 6-8 distinctive groups. Group triggers that are alike or have the same motivations.
+            Each and every trigger must be assigned to a group.
+            Name the groups with a one or two main words' title different from the name of the triggers. 
+            Describe each group relevance and the opportunities the brand has to communicate within it. 
+            List the territories and each trigger that belongs to it indicating in parenthesis its Audience.
+            *you must assign all of the following triggers exactly once*:  
+            {all_triggers_set} 
+
+            ### *Output Instructions*  
+            - No trigger must be placed in two or more groups.
+            - Do not give a group the same name of an existing trigger.
+            - Do not create new triggers.
+            - Do not include introductions, explanations, or headers.  
+            - Follow this structure *exactly* for each brand territory:  
+
+            Brand Territory: [Group Name]  
+            Relevance: [Short description of the group's strategic role]  
+            Opportunities: [How the brand can communicate within this group]  
+            Triggers:  
+            - [Trigger Name] ([Audience Name])
+            """,
+            session=session,
+        )
+
+        # Handle OpenAI response directly since it's already a string
+        content = response
+
+        territories = content.split("Brand Territory:")
+        territories = territories[1:]  # Remove empty first element
+
+        sections = []
+        applied_triggers_set = set()
+
+        for territory in territories:
+            section = {
+                "name": territory.split("Relevance:")[0].strip(),
+                "relevance": territory.split("Relevance:")[1]
+                .split("Opportunities:")[0]
+                .strip(),
+                "opportunities": territory.split("Opportunities:")[1]
+                .split("Triggers:")[0]
+                .strip(),
+                "triggers": [
+                    trigger.split("(")[0].strip("- ").strip()
+                    for trigger in territory.split("Triggers:")[1]
+                    .strip()
+                    .split("\n")
+                    if trigger.strip("- ").strip() != ""
+                ],
+            }
+            if section["triggers"]:
+                applied_triggers_set.update(section["triggers"])
+                sections.append(section)
+
+        missing_triggers = list(all_triggers_set - applied_triggers_set)
+
+        # Update territory field for all triggers
+        matched_triggers = []
+        for audience in audiences:
+            triggers = await TriggerRepository.get_all_triggers_by_audience(
+                audience.id, session
+            )
+            for trigger in triggers:
+                for section in sections:
+                    if trigger.name in section["triggers"]:
+                        matched_triggers.append({
+                            # Convert UUID to string
+                            "audience_id": str(audience.id),
+                            # Convert UUID to string
+                            "trigger_id": str(trigger.id),
+                            "trigger_name": trigger.name,
+                            "territory": section["name"]
+                        })
+                        # Update only the territory field
+                        update_data = TriggerUpdate(territory=section["name"])
+                        await TriggerRepository.update_trigger(
+                            trigger.id,
+                            update_data,
+                            session
+                        )
+
+        matched_triggers_sorted = sorted(
+            matched_triggers, key=lambda x: x["audience_id"]
+        )
+
+        return JSONResponse(
+            content={
+                "content": sections,
+                "summary": {
+                    "total_triggers": len(all_triggers_set),
+                    "applied_triggers": len(applied_triggers_set),
+                    "missing_triggers": missing_triggers,
+                },
+                "matched_triggers": matched_triggers_sorted,
+            },
+            status_code=200,
+        )
