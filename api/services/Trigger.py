@@ -170,7 +170,18 @@ class TriggerService:
             }
             parsed_triggers.append(sections)
 
-        color_map = ["#3FE2E8", "#FF36C3", "#FFD036"]
+        triggers_per_goal = {}
+        for trigger in parsed_triggers:
+            goal = trigger["goal"]
+            if goal not in triggers_per_goal:
+                triggers_per_goal[goal] = 0
+            triggers_per_goal[goal] += 1
+
+        for goal, count in triggers_per_goal.items():
+            if count != 3:
+                print(
+                    f"Goal '{goal}' has {count} triggers instead of 3. Retrying generation...")
+                return await TriggerService.generate_initial_triggers(audience_id, session)
 
         for trigger in parsed_triggers:
 
