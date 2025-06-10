@@ -27,13 +27,14 @@ class StrategicGoalService:
                 campaign.id, session
             )
             for goal in goals:
-                result.append(
-                    {
-                        "goal_id": goal.id,
-                        "campaign_name": campaign.campaign,
-                        "goal_name": goal.strategic_goal,
-                    }
-                )
+                if goal.is_active:
+                    result.append(
+                        {
+                            "goal_id": goal.id,
+                            "campaign_name": campaign.campaign,
+                            "goal_name": goal.strategic_goal,
+                        }
+                    )
         return result
 
     @staticmethod

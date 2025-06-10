@@ -170,18 +170,10 @@ class TriggerService:
             }
             parsed_triggers.append(sections)
 
-        triggers_per_goal = {}
-        for trigger in parsed_triggers:
-            goal = trigger["goal"]
-            if goal not in triggers_per_goal:
-                triggers_per_goal[goal] = 0
-            triggers_per_goal[goal] += 1
-
-        for goal, count in triggers_per_goal.items():
-            if count != 3:
-                print(
-                    f"Goal '{goal}' has {count} triggers instead of 3. Retrying generation...")
-                return await TriggerService.generate_initial_triggers(audience_id, session)
+        if len(parsed_triggers) != 3:
+            print(
+                f"Expected 3 triggers, but got {len(parsed_triggers)}. Retrying generation...")
+            return await TriggerService.generate_initial_triggers(audience_id, session)
 
         for trigger in parsed_triggers:
 
