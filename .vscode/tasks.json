@@ -26,6 +26,30 @@
       "problemMatcher": []
     },
     {
+      "label": "(prod) Run fastapi server",
+      "type": "shell",
+      "command": "fastapi run main.py --host 0.0.0.0",
+      "problemMatcher": []
+    },
+    {
+      "label": "(prod) Building and Start fastapi compose server",
+      "type": "shell",
+      "command": "docker compose -f compose.prod.yaml up --build",
+      "problemMatcher": []
+    },
+    {
+      "label": "(prod) Start fastapi compose server",
+      "type": "shell",
+      "command": "docker compose -f compose.prod.yaml up",
+      "problemMatcher": []
+    },
+    {
+      "label": "(prod) Stop fastapi compose server",
+      "type": "shell",
+      "command": "docker compose -f compose.prod.yaml down",
+      "problemMatcher": []
+    },
+    {
       "label": "(prod) Run tests",
       "type": "shell",
       "command": "docker compose -f compose.tests.yaml --profile test up --build --abort-on-container-exit --exit-code-from api-test",
