@@ -11,7 +11,8 @@ class AudienceRepository:
     async def get_all_audiences_by_brand_id(
         brand_id: UUID, session: SessionDep
     ) -> list[Audience]:
-        statement = select(Audience).where(Audience.brand_id == brand_id)
+        statement = select(Audience).where(
+            Audience.brand_id == brand_id).order_by(Audience.created_at.desc())
         audiences = session.exec(statement)
         return audiences.all()
 
