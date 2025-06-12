@@ -180,5 +180,5 @@ cython_debug/
 *.flv
 *.mov
 *.wmv
-*.jpg
+# *.jpg
 *.jpeg

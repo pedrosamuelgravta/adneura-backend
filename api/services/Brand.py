@@ -103,15 +103,35 @@ class BrandService:
     async def __update_step_with_prompt__(update_data: str, brand: BrandUpdate, session: SessionDep) -> dict:
         update_data.pop("prompt", None)
         field = next(iter(update_data))
+
         response = await OpenAiService.chat(
-            system=BrandService.system,
-            assistant=f"""You are tasked with generating content for {brand.name}.
-                        Consider {update_data} to complete your task. The {update_data}
-                        will work as a guideline and disambiguation factor.
-                        """,
-            user=brand.prompt,
+            system=f"""
+                You are a senior brand strategist with deep expertise in consumer insights, brand architecture, and narrative development. Your thinking is grounded in strategy legends like Jon Steel and Russell Davies. You specialize in distilling complex brand histories and market positions into concise, compelling, and accurate summaries. Use simple, impactful language with zero fluff. Prioritize clarity and brand fidelity above creativity.
+
+                When completing a task:
+                - Focus solely on the specific part of the text mentioned by the user.
+                - Do not include comments, explanations, or preambles.
+                - Return the full text, updating only the part specified in the instructions.
+                - Keep all other parts of the text intact and unaltered.
+                - If the instructions are ambiguous or incomplete, inform the user clearly.
+            """,
+            assistant="",
+            user=f"""
+                Brand name: {brand.name}
+                Instruction: {brand.prompt}
+                Field to update: {field}
+                Original text: {update_data[field]}
+
+                Please rewrite only the content of the specified field following the instruction, and return only the updated text.
+
+                Rules:
+                - Respect the structure and context of the original text.
+                - Strictly follow the instructions, such as in "rewrite the second paragraph" or "add an example at the end of the text", only change the second paragraph.
+                - Return the full text, updating only the part specified in the instructions.
+            """,
             session=session,
         )
+
         if not response:
             raise InternalServerError("Failed to update brand with prompt")
 

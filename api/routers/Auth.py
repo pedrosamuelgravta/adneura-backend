@@ -8,6 +8,8 @@ from api.schemas import UserCreate, UserReturn
 from core.exceptions import UnauthorizedException
 
 from datetime import timedelta
+from uuid import UUID
+from api.dependencies import get_current_active_user
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -56,3 +58,12 @@ async def refresh_access_token(request: Request):
 async def logout(response: Response):
     response.delete_cookie("refresh_token")
     return {"message": "Logged out successfully"}
+
+
+@auth_router.post("/add-seed/{user_id}")
+async def add_seed_to_user(
+    user_id: UUID,
+    session: SessionDep,
+    current_user: UserReturn = Depends(get_current_active_user),
+) -> dict:
+    return await AuthService.add_seed_to_user(user_id, session)

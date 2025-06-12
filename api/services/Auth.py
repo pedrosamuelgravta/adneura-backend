@@ -11,8 +11,11 @@ from core.security import (
 from core.db import SessionDep
 from core.types import TokenType
 from datetime import timedelta
+from api.services.seed import run_seed_for_user
 
 from core.config import get_settings
+
+from uuid import UUID
 
 settings = get_settings()
 
@@ -45,9 +48,13 @@ class AuthService:
         existing_user = await UserRepository.get_user_by_email(user.email, session)
         if existing_user:
             raise ConflictException("User already exists")
-        user = await UserRepository.create_user(user, session)
 
-        return user
+        created_user = await UserRepository.create_user(user, session)
+
+        # Run seed data for new user
+        await run_seed_for_user(created_user.id, session)
+
+        return created_user
 
     @staticmethod
     async def refresh_access_token(refresh_token: str):
@@ -66,3 +73,13 @@ class AuthService:
             "access_token": access_token,
             "token_type": "bearer",
         }
+
+    @staticmethod
+    async def add_seed_to_user(user_id: UUID, session: SessionDep) -> dict:
+        user = await UserRepository.get_user_by_id(user_id, session)
+        if not user:
+            raise NotFoundException("User not found")
+
+        await run_seed_for_user(user.id, session)
+
+        return {"message": "Seed data added successfully"}
