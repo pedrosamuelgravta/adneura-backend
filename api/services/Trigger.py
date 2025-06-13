@@ -226,6 +226,13 @@ class TriggerService:
         if not strategic_goal:
             raise NotFoundException(
                 f"Strategic goal with id {body.strategic_goal_id} not found")
+        all_triggers = await TriggerRepository.get_triggers_by_brand_id(body.brand_id, session)
+        unique_territories = set()
+        for trigger in all_triggers:
+            if trigger.territory:
+                unique_territories.add(trigger.territory)
+
+        unique_territories = list(unique_territories)
 
         prompt = f"""
                 Considering
@@ -234,6 +241,7 @@ class TriggerService:
                 {brand.category},
                 {brand.key_characteristics},
                 {brand.positioning},
+                territory list: {unique_territories},
                 the audience {audience.name} described as {audience.description}.
                 Focus on the psychographics, attitudinal, self-concept and lifestyle.
 
@@ -254,6 +262,7 @@ class TriggerService:
                 Narrative Hook: [1 paragraph describing how the brand, service or product is part of the audience routine]
                 Why it Works: [1 paragraph explaining why this message trigger will work with this audience]
                 Image Prompt: [generate a prompt to be used in text to image GenAI to create a scene that best describes the message trigger. Make sure it represents the trigger and its target audience. Generate a detailed image and include the best product, service or brand best fit for the audience]
+                territory: [pick one of the territories from the list above and output exactly that territory name]
 
                 Output Instructions:
                 - Do not include introductions, explanations, or headers.
@@ -261,6 +270,7 @@ class TriggerService:
                 - Use plain text formatting (no bold, asterisks, or quotation marks).
                 - Avoid repeating any part of the user's input.
                 - Follow the structure strictly and consistently.
+                - use the exact name of the territory from the list above.
         """
 
         response = await OpenAiService.chat(
@@ -294,7 +304,10 @@ class TriggerService:
                 "why_it_works": trigger_text.split("Why it Works:")[1]
                 .split("Image Prompt:")[0]
                 .strip(),
-                "image_prompt": trigger_text.split("Image Prompt:")[1].strip(),
+                "image_prompt": trigger_text.split("Image Prompt:")[1]
+                .split("territory:")[0]
+                .strip(),
+                "territory": trigger_text.split("territory:")[1].strip(),
             }
             parsed_triggers.append(sections)
 
@@ -307,6 +320,7 @@ class TriggerService:
                 "narrative_hook": trigger["narrative_hook"],
                 "why_it_works": trigger["why_it_works"],
                 "image_prompt": trigger["image_prompt"],
+                "territory": trigger["territory"],
                 "audience_id": body.audience_id,
                 "strategic_goal_id": body.strategic_goal_id
             }

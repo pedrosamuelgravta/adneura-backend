@@ -36,6 +36,7 @@ class TriggerCreate(BaseModel):
 class TriggerCreateWithGoal(BaseModel):
     audience_id: UUID
     strategic_goal_id: UUID
+    brand_id: UUID
 
 
 class TriggerUpdate(BaseModel):

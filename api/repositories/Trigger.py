@@ -1,6 +1,6 @@
 from typing import List
 from sqlmodel import select
-from api.models import Trigger
+from api.models import Trigger, Audience
 from api.schemas import TriggerCreate, TriggerUpdate
 from core.db import SessionDep
 from uuid import UUID
@@ -21,7 +21,14 @@ class TriggerRepository:
     async def get_triggers_by_brand_id(
         brand_id: UUID, session: SessionDep
     ) -> List[Trigger]:
-        return session.exec(select(Trigger).where(Trigger.brand_id == brand_id)).all()
+        audiences = session.exec(select(Audience).where(
+            Audience.brand_id == brand_id)).all()
+        triggers = []
+        for audience in audiences:
+            audience_triggers = session.exec(select(Trigger).where(
+                Trigger.audience_id == audience.id)).all()
+            triggers.extend(audience_triggers)
+        return triggers
 
     @staticmethod
     async def get_all_triggers_by_audience(
